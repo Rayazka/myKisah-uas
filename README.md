@@ -4,9 +4,93 @@
 
 ---
 
-## 📌 Latar Belakang
+## Latar Belakang
 
-Banyak mahasiswa gagal menjaga konsistensi kebiasaan karena tidak memiliki sistem tracking yang terstruktur dan tidak adanya support system. Data penggunaan aplikasi seperti Duolingo menunjukkan bahwa **virtual companion** mampu meningkatkan **retensi harian pengguna**. myKisah mengadopsi pendekatan serupa.
+Banyak mahasiswa gagal menjaga konsistensi kebiasaan karena tidak memiliki sistem tracking yang terstruktur dan tidak adanya support system. Data penggunaan aplikasi seperti Duolingo menunjukkan bahwa virtual companion mampu meningkatkan retensi harian pengguna. myKisah mengadopsi pendekatan serupa untuk mendukung pembentukan kebiasaan positif.
+
+---
+
+
+
+## Solusi yang Ditawarkan
+
+Fitur utama dalam myKisah:
+
+- **Journaling harian** sebagai media refleksi diri
+- **Habit tracking** untuk memonitor progres kebiasaan
+- **Character companion** untuk meningkatkan engagement
+
+---
+
+
+
+## Alur Aplikasi
+
+1. **User Registration** — User membuat akun dengan username unik
+2. **Pilih Character Companion** — User memilih karakter virtual favorit (Kira, Luna, Ren)
+3. **Buat Journal Harian** — User menulis jurnal dengan mood (Happy/Sad/Angry/Anxious/Calm)
+4. **Submit Journal** — Journal berpindah dari Draft → Submitted melalui state machine
+5. **Character Response** — Character companion memberikan respons emosional berdasarkan mood journal (table-driven lookup dari JSON)
+6. **Riwayat Journal** — User melihat daftar journal yang pernah dibuat
+
+---
+
+## Business Rules
+
+### User
+
+| ID   | Rule                                |
+| ---- | ----------------------------------- |
+| U-01 | Setiap user memiliki Id unik (GUID) |
+| U-02 | Username tidak boleh duplikat       |
+| U-03 | Username tidak boleh kosong         |
+
+### Journal
+
+| ID   | Rule                                                                          |
+| ---- | ----------------------------------------------------------------------------- |
+| J-01 | User hanya dapat mengakses journal miliknya sendiri                           |
+| J-02 | Journal wajib punya title dan content tidak kosong                            |
+| J-03 | Panjang content maksimal `MaxContentLength` (dari config)                   |
+| J-04 | Mood wajib merupakan nilai yang ada di `ValidMoods` (dari config)           |
+| J-05 | Journal mengikuti alur state machine:`Draft → Submitted → Saved/Rejected` |
+
+### Character Companion
+
+| ID   | Rule                                                                                           |
+| ---- | ---------------------------------------------------------------------------------------------- |
+| C-01 | Response karakter diambil dari `characterResponses.json` (table-driven, tidak ada if/switch) |
+| C-02 | Setiap kombinasi `characterId + mood` harus memiliki entry di tabel                          |
+| C-03 | `characterId` tidak boleh null saat meminta response                                         |
+
+---
+
+## Functional Requirements
+
+### FR-01 User Management
+
+| ID      | Requirement                          | Endpoint                  |
+| ------- | ------------------------------------ | ------------------------- |
+| FR-01.1 | User dapat melakukan registrasi akun | `POST /api/user`        |
+| FR-01.2 | User dapat melihat daftar user       | `GET /api/user`         |
+| FR-01.3 | User dapat mengubah username         | `PUT /api/user/{id}`    |
+| FR-01.4 | User dapat menghapus akun            | `DELETE /api/user/{id}` |
+
+### FR-02 Journal Management
+
+| ID      | Requirement                                | Endpoint                      |
+| ------- | ------------------------------------------ | ----------------------------- |
+| FR-02.1 | User dapat membuat journal (State: Draft)  | `POST /api/journal`         |
+| FR-02.2 | User dapat melihat daftar journal miliknya | `GET /api/journal/{userId}` |
+| FR-02.3 | User dapat menghapus journal               | `DELETE /api/journal/{id}`  |
+
+### FR-03 Character Companion
+
+| ID      | Requirement                                                     | Endpoint                                      |
+| ------- | --------------------------------------------------------------- | --------------------------------------------- |
+| FR-03.1 | User dapat melihat daftar karakter                              | `GET /api/character`                        |
+| FR-03.2 | Sistem menampilkan response karakter berdasarkan mood journal   | `GET /api/character/{id}/response?mood=...` |
+| FR-03.3 | Response diambil dari table-driven data (JSON, tanpa if/switch) | —                                            |
 
 ---
 
@@ -59,13 +143,13 @@ myKisah/
 
 ## Teknologi
 
-| Layer           | Teknologi                                 |
-| --------------- | ----------------------------------------- |
-| Framework       | ASP.NET Web API (.NET 10)                 |
-| Bahasa          | C#                                        |
-| Persistensi     | File JSON (System.Text.Json)              |
-| Testing         | xUnit + Moq + BenchmarkDotNet / Stopwatch |
-| Version Control | Git                                       |
+| Layer           | Teknologi                                            |
+| --------------- | ---------------------------------------------------- |
+| Framework       | ASP.NET Web API (.NET 10)                            |
+| Bahasa          | C#                                                   |
+| Persistensi     | File JSON (System.Text.Json)                         |
+| Testing         | xUnit + Moq + BenchmarkDotNet / Stopwatch            |
+| Version Control | Git — branch pribadi per anggota, merge ke `main` |
 
 ---
 
@@ -75,7 +159,7 @@ myKisah/
 
 | Teknik                          | Penjelasan                                                                                                                      | Diimplementasikan di                                                                                            |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| **Automata**              | Finite State Machine untuk lifecycle journal. Dictionary sebagai tabel transisi. Tidak pakai if-else.                           | `Automata/JournalStateMachine.cs`                                                                             |
+| **Automata**              | Finite State Machine untuk lifecycle journal. Dictionary sebagai tabel transisi. Tanpa if-else.                                 | `Automata/JournalStateMachine.cs`                                                                             |
 | **Table-Driven**          | Mapping mood ke response karakter via JSON file. Lookup pakai LINQ Where, tanpa if/switch.                                      | `Repositories/JsonCharacterResponseRepository.cs`, `Services/CharacterService.cs`                           |
 | **Generics**              | `IRepository<T>`, `ValidationHelper.ValidateNotNull<T>`, `JsonStorageHelper.ReadJson<T>` — satu method untuk semua tipe. | `Interfaces/IRepository.cs`, `Utils/ValidationHelper.cs`, `Utils/JsonStorageHelper.cs`                    |
 | **Runtime Configuration** | MaxContentLength, ValidMoods, path file dibaca dari `appsettings.json` — tidak di-hardcode.                                  | `Utils/FilePathConfig.cs`, `Services/JournalService.cs`, `appsettings.json`                               |
@@ -140,7 +224,7 @@ Draft ──[Submit]──► Submitted ──[Save]──► Saved (terminal)
 
 ---
 
-## API Endpoints (CLO2)
+## 📡 API Endpoints
 
 | Method     | Endpoint                                  | Deskripsi                         | Controller              |
 | ---------- | ----------------------------------------- | --------------------------------- | ----------------------- |
@@ -155,38 +239,6 @@ Draft ──[Submit]──► Submitted ──[Save]──► Saved (terminal)
 | `GET`    | `/api/character/{id}/response?mood=...` | Ambil respons companion           | `CharacterController` |
 
 ---
-
-## 📏 Business Rules (CLO2)
-
-### User
-
-| ID   | Rule                                |
-| ---- | ----------------------------------- |
-| U-01 | Setiap user memiliki Id unik (GUID) |
-| U-02 | Username tidak boleh duplikat       |
-| U-03 | Username tidak boleh kosong         |
-
-### Journal
-
-| ID   | Rule                                                                          |
-| ---- | ----------------------------------------------------------------------------- |
-| J-01 | User hanya dapat mengakses journal miliknya sendiri                           |
-| J-02 | Journal wajib punya title dan content tidak kosong                            |
-| J-03 | Panjang content maksimal `MaxContentLength` (dari config)                   |
-| J-04 | Mood wajib merupakan nilai yang ada di `ValidMoods` (dari config)           |
-| J-05 | Journal mengikuti alur state machine:`Draft → Submitted → Saved/Rejected` |
-
-### Character Companion
-
-| ID   | Rule                                                                                           |
-| ---- | ---------------------------------------------------------------------------------------------- |
-| C-01 | Response karakter diambil dari `characterResponses.json` (table-driven, tidak ada if/switch) |
-| C-02 | Setiap kombinasi `characterId + mood` harus memiliki entry di tabel                          |
-| C-03 | `characterId` tidak boleh null saat meminta response                                         |
-
----
-
-
 
 ## Data Models
 
@@ -237,8 +289,6 @@ Draft ──[Submit]──► Submitted ──[Save]──► Saved (terminal)
 
 ---
 
-
-
 ## Design by Contract (DbC)
 
 Setiap method di layer Service dan Repository menerapkan precondition/postcondition via `ValidationHelper`. Violation dilempar sebagai exception yang ditangkap global `ErrorHandlingMiddleware`:
@@ -276,6 +326,4 @@ Contoh kontrak kritis:
 
 ---
 
-|  |  |
-| - | - |
-|  |  |
+✨ *myKisah — Build habits, write your journey, grow together.* 🌱
