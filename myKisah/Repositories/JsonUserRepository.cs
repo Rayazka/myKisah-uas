@@ -69,38 +69,54 @@ public class JsonUserRepository : IUserRepository
 
     public IEnumerable<User> GetAll()
     {
-        throw new NotImplementedException("TODO: GetAll - baca dari users.json");
+        return _storage.ReadJson<User>(_filePath.UsersFile);
     }
 
     public User? GetById(string id)
     {
-        throw new NotImplementedException("TODO: GetById - cari user dengan FirstOrDefault");
+        return GetAll().FirstOrDefault(u => u.Id == id);
     }
 
     public void Add(User entity)
     {
-        throw new NotImplementedException("TODO: Add - generate Id, set CreatedAt, simpan");
+        var users = GetAll().ToList();
+        entity.Id = Guid.NewGuid().ToString();
+        entity.CreatedAt = DateTime.UtcNow;
+        users.Add(entity);
+        _storage.WriteJson(_filePath.UsersFile, users);
     }
 
     public void Update(User entity)
     {
-        throw new NotImplementedException("TODO: Update - cari by Id, ganti data, simpan");
+        var users = GetAll().ToList();
+        var index = users.FindIndex(u => u.Id == entity.Id);
+
+        if (index == -1)
+            throw new KeyNotFoundException($"User dengan Id '{entity.Id}' tidak ditemukan.");
+        users[index] = entity;
+        _storage.WriteJson(_filePath.UsersFile, users);
     }
 
     public void Delete(string id)
     {
-        throw new NotImplementedException("TODO: Delete - RemoveAll by Id, simpan");
+        var users = GetAll().ToList();
+        users.RemoveAll(u => u.Id == id);
+        _storage.WriteJson(_filePath.UsersFile, users);
     }
 
     // ═══ IUserRepository (spesifik) ═══
 
     public User? GetByUsername(string username)
     {
-        throw new NotImplementedException("TODO: GetByUsername - case-insensitive search");
+        return GetAll().FirstOrDefault(
+            u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)
+        );
     }
 
     public bool UsernameExists(string username)
     {
-        throw new NotImplementedException("TODO: UsernameExists - case-insensitive Any");
+        return GetAll().Any(
+            u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)
+        );
     }
 }
