@@ -25,26 +25,6 @@ namespace myKisah.Automata;
 //                               Draft
 //
 
-//  TODO:
-// [ ] 1. Isi dictionary _transitions dengan 4 entry:
-//        (Draft, Submit)      → Submitted
-//        (Submitted, Save)    → Saved
-//        (Submitted, Reject)  → Rejected
-//        (Rejected, Reset)    → Draft
-//
-// [ ] 2. Implement method Transition():
-//        - Cek apakah key (currentState, trigger) ada di _transitions
-//          pakai _transitions.TryGetValue()
-//        - Jika ADA: return state tujuan
-//        - Jika TIDAK: throw new InvalidOperationException(
-//            $"Transisi tidak valid: {currentState} + {trigger}")
-//
-// [ ] 3. Implement method IsTerminal():
-//        - Return true jika state == JournalState.Saved
-//        - Saved adalah state akhir, tidak ada transisi keluar
-//
-
-
 public class JournalStateMachine
 {
     // Proses transisi state berdasarkan trigger yang diberikan.
