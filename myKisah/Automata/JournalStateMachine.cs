@@ -47,41 +47,36 @@ namespace myKisah.Automata;
 
 public class JournalStateMachine
 {
-    // Tabel transisi: key = (state saat ini, trigger), value = state tujuan
+    // Proses transisi state berdasarkan trigger yang diberikan.
     private readonly Dictionary<(JournalState, JournalTrigger), JournalState> _transitions = new()
     {
-        // TODO: Isi 4 entry transisi di bawah ini
-        // Format: { (stateAwal, trigger), stateTujuan }
-        // Contoh: { (JournalState.Draft, JournalTrigger.Submit), JournalState.Submitted },
-    };
+        // Draft → Submitted (trigger: Submit). Ketika journal masih di Draft, user bisa Submit untuk pindah ke Submitted
+        // Submitted → Saved (trigger: Save). Ketika journal sudah di Submitted, user bisa Save untuk pindah ke Saved
+        // Submitted → Rejected (trigger: Reject). Ketika journal sudah di Submitted, user bisa Reject untuk pindah ke Rejected
+        // Rejected → Draft (trigger: Reset). Ketika journal sudah di Rejected, user bisa Reset untuk kembali ke Draft
 
-    /// <summary>
-    /// Melakukan transisi state berdasarkan trigger yang diberikan.
-    /// </summary>
-    /// <param name="currentState">State journal saat ini</param>
-    /// <param name="trigger">Trigger yang memicu transisi</param>
-    /// <returns>State baru setelah transisi</returns>
-    /// <exception cref="InvalidOperationException">
-    /// Dilempar jika kombinasi (currentState, trigger) tidak valid.
-    /// Ditangkap Middleware → 422 Unprocessable Entity.
-    /// </exception>
+        {(JournalState.Draft, JournalTrigger.Submit), JournalState.Submitted},
+        {(JournalState.Submitted, JournalTrigger.Save), JournalState.Saved},
+        {(JournalState.Submitted, JournalTrigger.Reject), JournalState.Rejected},
+        {(JournalState.Rejected, JournalTrigger.Reset), JournalState.Draft},
+    };
+    // Melakukan transisi state berdasarkan trigger yang diberikan.
     public JournalState Transition(JournalState currentState, JournalTrigger trigger)
-    {
-        // TODO: Cek apakah transisi valid
-        // 1. Coba _transitions.TryGetValue((currentState, trigger), out var nextState)
-        // 2. Jika true → return nextState
-        // 3. Jika false → throw InvalidOperationException
-        throw new NotImplementedException("TODO: Implement Transition method");
+    {        
+        // Cek apakah transisi valid. Jika valid, return state tujuan. Jika tidak, lempar exception.
+        if(_transitions.TryGetValue((currentState, trigger), out var nextState))
+        {
+            return nextState;
+        }
+
+        throw new InvalidOperationException($"Transisi tidak valid: state '{currentState}' tidak dapat menerima '{trigger}'");
     }
 
-    /// <summary>
-    /// Mengecek apakah state adalah terminal (tidak bisa transisi lagi).
-    /// </summary>
-    /// <param name="state">State yang ingin dicek</param>
-    /// <returns>true jika terminal, false jika masih bisa transisi</returns>
+    // Mengecek apakah state adalah terminal (tidak bisa transisi lagi). 
+        // Supaya kita tahu kalau journal sudah selesai (Saved) atau belum (karena tidak ada transisi keluar dari Saved)
     public bool IsTerminal(JournalState state)
     {
-        // TODO: Return true jika state == JournalState.Saved
-        throw new NotImplementedException("TODO: Implement IsTerminal");
+        // Mengembalikan true jika state adalah Saved, karena Saved adalah state akhir
+        return state == JournalState.Saved;
     }
 }
