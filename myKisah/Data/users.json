@@ -1,0 +1,5 @@
+[
+  { "id": "user-seed-001", "username": "rayazka", "createdAt": "2025-01-15T08:00:00Z" },
+  { "id": "user-seed-002", "username": "toni",    "createdAt": "2025-01-15T08:00:00Z" },
+  { "id": "user-seed-003", "username": "farel",   "createdAt": "2025-01-15T08:00:00Z" }
+]

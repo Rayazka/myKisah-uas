@@ -1,193 +1,281 @@
 # myKisah 🌱
 
-**myKisah** adalah web application berbasis **Blazor**, **C#**, dan **.NET** yang membantu mahasiswa membangun kebiasaan positif melalui **journaling**, **habit tracking**, serta **dukungan sosial** dari buddy dan character companion.
-
-Aplikasi ini berfokus pada **konsistensi pengguna** dalam menjalankan aktivitas harian seperti belajar, ibadah, dan self-improvement dengan pendekatan reflektif dan suportif.
+**myKisah** adalah aplikasi journaling self-improvement berbasis **C#**, **ASP.NET Web API (.NET 10)**, dan **Blazor** yang membantu mahasiswa membangun kebiasaan positif melalui journaling harian dan character companion virtual.
 
 ---
 
-## 📌 Latar Belakang Masalah
+## 📌 Latar Belakang
 
-Banyak mahasiswa gagal menjaga konsistensi kebiasaan karena:
-- Tidak memiliki sistem tracking yang terstruktur
-- Tidak adanya support system atau accountability partner
-
-Data penggunaan aplikasi seperti Duolingo menunjukkan bahwa **reminder** dan **virtual companion** mampu meningkatkan **retensi harian pengguna**. myKisah mengadopsi pendekatan serupa untuk mendukung pembentukan kebiasaan positif.
+Banyak mahasiswa gagal menjaga konsistensi kebiasaan karena tidak memiliki sistem tracking yang terstruktur dan tidak adanya support system. Data penggunaan aplikasi seperti Duolingo menunjukkan bahwa **virtual companion** mampu meningkatkan **retensi harian pengguna**. myKisah mengadopsi pendekatan serupa.
 
 ---
 
-## 🎯 Solusi yang Ditawarkan
+## Arsitektur
 
-Fitur utama dalam myKisah:
+Aplikasi menggunakan **Layered Architecture** dengan persistensi data berbasis file JSON:
 
-- 📔 **Journaling harian** sebagai media refleksi diri
-- ✅ **Habit tracking** untuk memonitor progres kebiasaan
-- 🤝 **Buddy system** untuk dukungan sosial
-- 🎭 **Character companion** untuk meningkatkan engagement
+```
+HTTP Request → Controller → Service → Repository → JSON File
+                  │              │           │
+              (validasi     (business     (data access
+               input)        logic)        only)
+```
 
----
+### Struktur Proyek
 
-## 👥 Target User
+```
+myKisah/
+├── Controllers/     # HTTP endpoint handlers (ASP.NET Web API)
+├── Services/        # Business logic + validasi
+├── Repositories/    # Akses dan persistensi data JSON
+├── Models/          # Data model dan enum
+├── Interfaces/      # Contract antar layer (dependency injection)
+├── Automata/        # State machine untuk Journal
+├── Utils/           # Helper: storage, validation, base class
+├── Middleware/      # Global error handling
+├── Data/            # File JSON persistensi
+│   ├── users.json
+│   ├── journals.json
+│   ├── characters.json
+│   └── characterResponses.json
+├── Tests/           # Test plan (skeleton)
+└── appsettings.json # Runtime configuration
+```
 
-- Mahasiswa usia **18–25 tahun**
-- Individu yang ingin membangun kebiasaan positif
-- Komunitas kampus atau circle kecil
+### Namespace Mapping
 
----
-
-## 💎 Value Proposition
-
-- Meningkatkan **konsistensi aktivitas harian**
-- Memberikan **dukungan sosial**
-- Membuat aktivitas tracking lebih **menarik & engaging**
-
----
-
-## 🔄 Alur Aplikasi
-
-1. **User Registration & Login**  
-   User membuat akun dan login ke sistem
-
-2. **Setup Awal**
-   - Memilih habit
-   - Memilih character companion
-
-3. **Daily Activity**
-   - Mengisi journal harian
-   - Update checklist habit
-
-4. **Buddy Interaction**
-   - Menambahkan buddy
-   - Melihat journal & progres habit buddy
-
-5. **Companion Feedback**
-   - Respon character terhadap journal
-   - Feedback terhadap progres habit
-
-6. **Progress Monitoring**
-   - Riwayat journal
-   - Streak habit
-   - Aktivitas buddy
+| Namespace                | Isi                                                                                                             |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `myKisah.Models`       | Data model & enum (`User`, `Journal`, `Character`, `CharacterResponse`, `MoodType`, `JournalState`) |
+| `myKisah.Interfaces`   | Interface contract (`IRepository<T>`, `IUserRepository`, `IJournalRepository`, `IJournalService`, dll.) |
+| `myKisah.Repositories` | Implementasi akses data JSON (`JsonUserRepository`, `JsonJournalRepository`, dll.)                          |
+| `myKisah.Services`     | Business logic (`UserService`, `JournalService`, `CharacterService`)                                      |
+| `myKisah.Controllers`  | HTTP endpoint handler (`UserController`, `JournalController`, `CharacterController`)                      |
+| `myKisah.Utils`        | Helper (`JsonStorageHelper`, `FilePathConfig`, `ValidationHelper`, `ServiceBase`)                       |
+| `myKisah.Automata`     | State machine journal (`JournalStateMachine`, `JournalTrigger`)                                             |
+| `myKisah.Middleware`   | Global error handler (`ErrorHandlingMiddleware`)                                                              |
 
 ---
 
-## 📏 Business Rules
+## Teknologi
 
-### 1. User
-
-| ID | Business Rule |
-|----|--------------|
-| U-01 | Setiap user memiliki akun yang unik |
-| U-02 | Email user tidak boleh duplikat |
-| U-03 | User wajib login untuk mengakses fitur aplikasi |
-
-### 2. Journal
-
-| ID | Business Rule |
-|----|--------------|
-| J-01 | User hanya dapat mengakses journal miliknya sendiri |
-| J-02 | Journal harus memiliki isi minimal 1 karakter |
-| J-03 | Journal terikat pada satu tanggal |
-
-### 3. Habit
-
-| ID | Business Rule |
-|----|--------------|
-| H-01 | Habit hanya dapat dibuat oleh user |
-| H-02 | Setiap habit memiliki status harian (done / not done) |
-| H-03 | Streak bertambah jika habit dilakukan berturut-turut |
-
-### 4. Buddy System
-
-| ID | Business Rule |
-|----|--------------|
-| B-01 | User hanya dapat memiliki maksimal 1 buddy (MVP) |
-| B-02 | Buddy dapat melihat journal user |
-| B-03 | Buddy dapat melihat data habit user |
-| B-04 | Relasi buddy harus mutual (saling approve) |
-
-### 5. Character Companion
-
-| ID | Business Rule |
-|----|--------------|
-| C-01 | User hanya dapat memilih 1 character aktif |
-| C-02 | Character memberikan respon berdasarkan kondisi user |
-| C-03 | Respon diambil dari predefined (table-driven data) |
+| Layer           | Teknologi                                 |
+| --------------- | ----------------------------------------- |
+| Framework       | ASP.NET Web API (.NET 10)                 |
+| Bahasa          | C#                                        |
+| Persistensi     | File JSON (System.Text.Json)              |
+| Testing         | xUnit + Moq + BenchmarkDotNet / Stopwatch |
+| Version Control | Git                                       |
 
 ---
 
-## ✅ Functional Requirements
+## Teknik Konstruksi & Implementasi
 
-### FR-01 User Management
+### Ringkasan Teknik
 
-| ID | Functional Requirement |
-|----|------------------------|
-| FR-01.1 | User dapat melakukan registrasi akun |
-| FR-01.2 | User dapat login ke sistem |
-| FR-01.3 | User dapat melihat profil |
-| FR-01.4 | User dapat mengubah profil |
-| FR-01.5 | User dapat menghapus akun |
+| Teknik                          | Penjelasan                                                                                                                      | Diimplementasikan di                                                                                            |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Automata**              | Finite State Machine untuk lifecycle journal. Dictionary sebagai tabel transisi. Tidak pakai if-else.                           | `Automata/JournalStateMachine.cs`                                                                             |
+| **Table-Driven**          | Mapping mood ke response karakter via JSON file. Lookup pakai LINQ Where, tanpa if/switch.                                      | `Repositories/JsonCharacterResponseRepository.cs`, `Services/CharacterService.cs`                           |
+| **Generics**              | `IRepository<T>`, `ValidationHelper.ValidateNotNull<T>`, `JsonStorageHelper.ReadJson<T>` — satu method untuk semua tipe. | `Interfaces/IRepository.cs`, `Utils/ValidationHelper.cs`, `Utils/JsonStorageHelper.cs`                    |
+| **Runtime Configuration** | MaxContentLength, ValidMoods, path file dibaca dari `appsettings.json` — tidak di-hardcode.                                  | `Utils/FilePathConfig.cs`, `Services/JournalService.cs`, `appsettings.json`                               |
+| **Code Reuse**            | `ServiceBase` (base class service), `JsonStorageHelper` (shared JSON I/O), `ValidationHelper` (shared validation).        | `Utils/ServiceBase.cs`, `Utils/JsonStorageHelper.cs`, `Utils/ValidationHelper.cs`                         |
+| **API Development**       | RESTful endpoint dengan ASP.NET Web API controller.                                                                             | `Controllers/UserController.cs`, `Controllers/JournalController.cs`, `Controllers/CharacterController.cs` |
 
-### FR-02 Journal Management
+### Detail Teknik per Kelas
 
-| ID | Functional Requirement |
-|----|------------------------|
-| FR-02.1 | User dapat membuat journal |
-| FR-02.2 | User dapat melihat daftar journal |
-| FR-02.3 | User dapat mengedit journal |
-| FR-02.4 | User dapat menghapus journal |
+#### Automata — `JournalStateMachine`
 
-### FR-03 Habit Tracking
+```
+Draft ──[Submit]──► Submitted ──[Save]──► Saved (terminal)
+                         │
+                      [Reject]
+                         │
+                         ▼
+                     Rejected ──[Reset]──► Draft
+```
 
-| ID | Functional Requirement |
-|----|------------------------|
-| FR-03.1 | User dapat membuat habit |
-| FR-03.2 | User dapat melihat daftar habit |
-| FR-03.3 | User dapat mengupdate status habit harian |
-| FR-03.4 | User dapat menghapus habit |
+**Kenapa Automata?** Journal punya aturan transisi ketat. Tanpa automata, perlu if-else di banyak tempat. Dengan Dictionary `Dictionary<(JournalState, JournalTrigger), JournalState>`, semua aturan di satu tabel. Invalid transition → `InvalidOperationException` → middleware → 422.
 
-### FR-04 Buddy System
+#### Table-Driven — `CharacterResponse` system
 
-| ID | Functional Requirement |
-|----|------------------------|
-| FR-04.1 | User dapat menambahkan buddy |
-| FR-04.2 | User dapat menerima request buddy |
-| FR-04.3 | User dapat menolak request buddy |
-| FR-04.4 | User dapat melihat journal buddy |
-| FR-04.5 | User dapat melihat progres habit buddy |
+**Kenapa Table-Driven?** Response karakter tidak di-hardcode di kode C#. Semua data response ada di `characterResponses.json`. Method `GetByMood()` hanya melakukan LINQ Where — tidak ada if/switch. Tambah response baru = edit JSON file, tidak perlu ubah kode.
 
-### FR-05 Character Companion
+#### Generics — `IRepository<T>`, `JsonStorageHelper<T>`, `ValidationHelper<T>`
 
-| ID | Functional Requirement |
-|----|------------------------|
-| FR-05.1 | User dapat memilih character |
-| FR-05.2 | Sistem menampilkan respon character berdasarkan journal |
-| FR-05.3 | Sistem menampilkan feedback berdasarkan habit user |
+**Kenapa Generics?** Tanpa generics, perlu membuat overload untuk setiap tipe data. Dengan generics: satu method untuk semua tipe (`ReadJson<User>()`, `ReadJson<Journal>()`).
 
-### FR-06 Progress Monitoring
+#### Runtime Configuration — `FilePathConfig`, `JournalService`
 
-| ID | Functional Requirement |
-|----|------------------------|
-| FR-06.1 | User dapat melihat streak habit |
-| FR-06.2 | User dapat melihat riwayat aktivitas |
-| FR-06.3 | User dapat melihat summary progres |
+**Kenapa Runtime Config?** `MaxContentLength` dan `ValidMoods` tidak di-hardcode. Dibaca dari `appsettings.json`. Ubah batas karakter: cukup edit config, tidak perlu recompile.
+
+#### Code Reuse — `ServiceBase`, `JsonStorageHelper`, `ValidationHelper`
+
+**Kenapa Code Reuse?** Tanpa shared utility, setiap developer akan menulis ulang kode validasi, JSON I/O, dan logging. Ini = duplikasi + inkonsistensi.
 
 ---
 
-## 🛠️ Teknologi
+## Tim & Pembagian Tugas
 
-- **Framework**: Blazor (.NET)
-- **Bahasa Pemrograman**: C#
-- **Arsitektur**: Web Application
-- **Database**: (disesuaikan pada implementasi)
+### Anggota
+
+| Anggota                       | Modul                              | Teknik Konstruksi                      | File                                                                                   |
+| ----------------------------- | ---------------------------------- | -------------------------------------- | -------------------------------------------------------------------------------------- |
+| **Rayazka Aris (Azka)** | Journal System + Shared Foundation | Automata + Runtime Configuration + API | 18 file (Models, Interfaces, Automata, JournalRepo, JournalService, JournalController) |
+| **Toni Kurniawan**      | Character Companion System         | Table-driven + API                     | 6 file (CharRepo, CharResponseRepo, CharService, CharController + test plan)           |
+| **Farel Ilham**         | User Management                    | Generics + API                         | 5 file (UserRepo, UserService, UserController + test plan)                             |
+| **Rafly Putra**         | JSON Storage Layer                 | Runtime Configuration + Code Reuse     | 4 file (FilePathConfig, JsonStorageHelper, appsettings.json + test plan)               |
+| **Josefhint (Jojo)**    | Shared Utilities & Error Handling  | Code Reuse + Generics                  | 5 file (ValidationHelper, ServiceBase, Middleware, Program.cs + test plan)             |
+
+### Distribusi Teknik Konstruksi
+
+| Teknik                          | Anggota         | Slot        |
+| ------------------------------- | --------------- | ----------- |
+| **Automata**              | Rayazka         | 1/2         |
+| **Table-driven**          | Toni            | 1/2         |
+| **Generics**              | Farel + Jojo    | 2/2 (penuh) |
+| **Runtime Configuration** | Rayazka + Rafly | 2/2 (penuh) |
+| **Code Reuse**            | Rafly + Jojo    | 2/2 (penuh) |
+| **API**                   | Toni + Farel    | 2/2 (penuh) |
 
 ---
 
-## 🚀 Status Proyek
+## API Endpoints (CLO2)
 
-- ✅ Spesifikasi MVP selesai
-- 🔄 Dalam tahap pengembangan fitur inti
+| Method     | Endpoint                                  | Deskripsi                         | Controller              |
+| ---------- | ----------------------------------------- | --------------------------------- | ----------------------- |
+| `GET`    | `/api/user`                             | List semua user                   | `UserController`      |
+| `POST`   | `/api/user`                             | Registrasi user baru              | `UserController`      |
+| `PUT`    | `/api/user/{id}`                        | Update username                   | `UserController`      |
+| `DELETE` | `/api/user/{id}`                        | Hapus user                        | `UserController`      |
+| `GET`    | `/api/journal/{userId}`                 | Jurnal berdasarkan user           | `JournalController`   |
+| `POST`   | `/api/journal`                          | Create jurnal baru (State: Draft) | `JournalController`   |
+| `DELETE` | `/api/journal/{id}`                     | Hapus jurnal                      | `JournalController`   |
+| `GET`    | `/api/character`                        | List karakter tersedia            | `CharacterController` |
+| `GET`    | `/api/character/{id}/response?mood=...` | Ambil respons companion           | `CharacterController` |
 
 ---
 
-✨ *myKisah — Build habits, write your journey, grow together.*
+## 📏 Business Rules (CLO2)
+
+### User
+
+| ID   | Rule                                |
+| ---- | ----------------------------------- |
+| U-01 | Setiap user memiliki Id unik (GUID) |
+| U-02 | Username tidak boleh duplikat       |
+| U-03 | Username tidak boleh kosong         |
+
+### Journal
+
+| ID   | Rule                                                                          |
+| ---- | ----------------------------------------------------------------------------- |
+| J-01 | User hanya dapat mengakses journal miliknya sendiri                           |
+| J-02 | Journal wajib punya title dan content tidak kosong                            |
+| J-03 | Panjang content maksimal `MaxContentLength` (dari config)                   |
+| J-04 | Mood wajib merupakan nilai yang ada di `ValidMoods` (dari config)           |
+| J-05 | Journal mengikuti alur state machine:`Draft → Submitted → Saved/Rejected` |
+
+### Character Companion
+
+| ID   | Rule                                                                                           |
+| ---- | ---------------------------------------------------------------------------------------------- |
+| C-01 | Response karakter diambil dari `characterResponses.json` (table-driven, tidak ada if/switch) |
+| C-02 | Setiap kombinasi `characterId + mood` harus memiliki entry di tabel                          |
+| C-03 | `characterId` tidak boleh null saat meminta response                                         |
+
+---
+
+
+
+## Data Models
+
+### `User`
+
+| Property      | Type         | Keterangan           |
+| ------------- | ------------ | -------------------- |
+| `Id`        | `string`   | GUID, primary key    |
+| `Username`  | `string`   | Unique, not empty    |
+| `CreatedAt` | `DateTime` | Timestamp registrasi |
+
+### `Journal`
+
+| Property      | Type             | Keterangan                      |
+| ------------- | ---------------- | ------------------------------- |
+| `Id`        | `string`       | GUID                            |
+| `UserId`    | `string`       | FK ke User                      |
+| `Title`     | `string`       | Tidak boleh kosong              |
+| `Content`   | `string`       | Maks. MaxContentLength (config) |
+| `Mood`      | `MoodType`     | Happy/Sad/Angry/Anxious/Calm    |
+| `State`     | `JournalState` | Draft/Submitted/Saved/Rejected  |
+| `CreatedAt` | `DateTime`     | Timestamp                       |
+
+### `Character`
+
+| Property        | Type       |
+| --------------- | ---------- |
+| `Id`          | `string` |
+| `Name`        | `string` |
+| `Description` | `string` |
+
+### `CharacterResponse` (Tabel Table-Driven)
+
+| Property        | Type         |
+| --------------- | ------------ |
+| `Id`          | `string`   |
+| `CharacterId` | `string`   |
+| `Mood`        | `MoodType` |
+| `Response`    | `string`   |
+
+### Enums
+
+| Enum               | Value                                                |
+| ------------------ | ---------------------------------------------------- |
+| `MoodType`       | `Happy`, `Sad`, `Angry`, `Anxious`, `Calm` |
+| `JournalState`   | `Draft`, `Submitted`, `Saved`, `Rejected`    |
+| `JournalTrigger` | `Submit`, `Save`, `Reject`, `Reset`          |
+
+---
+
+
+
+## Design by Contract (DbC)
+
+Setiap method di layer Service dan Repository menerapkan precondition/postcondition via `ValidationHelper`. Violation dilempar sebagai exception yang ditangkap global `ErrorHandlingMiddleware`:
+
+| Exception                     | HTTP Response            |
+| ----------------------------- | ------------------------ |
+| `ArgumentNullException`     | 400 Bad Request          |
+| `ArgumentException`         | 400 Bad Request          |
+| `KeyNotFoundException`      | 404 Not Found            |
+| `InvalidOperationException` | 422 Unprocessable Entity |
+
+Contoh kontrak kritis:
+
+| Method                 | Precondition                                                                             | Postcondition                      |
+| ---------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------- |
+| `CreateJournal()`    | userId not null, title/content not empty, content.Length ≤ MaxContentLength, mood valid | Journal tersimpan, State = Draft   |
+| `RegisterUser()`     | username not null/empty, belum terdaftar                                                 | User tersimpan, Id unik (GUID)     |
+| `GenerateResponse()` | characterId not null, mood valid                                                         | Return string response, bukan null |
+| `Transition()`       | Transisi valid di tabel                                                                  | State berubah sesuai transisi      |
+
+---
+
+## Performance Benchmarks (Target)
+
+| Skenario                                         | Target      | PIC     |
+| ------------------------------------------------ | ----------- | ------- |
+| `GetJournalsByUser()` — 10 entri              | < 10ms      | Rayazka |
+| `GetJournalsByUser()` — 100 entri             | < 50ms      | Rayazka |
+| `CreateJournal()` + state machine              | < 20ms      | Rayazka |
+| `GenerateResponse()` — 1000 iterasi           | < 1ms/call  | Toni    |
+| `ReadJson` payload 100KB                       | < 100ms     | Rafly   |
+| `WriteJson` + `ReadJson` round-trip 100 item | < 50ms      | Rafly   |
+| `ValidationHelper` — 1000 panggilan           | < 5ms total | Jojo    |
+| Pipeline end-to-end                              | < 50ms      | Semua   |
+
+---
+
+|  |  |
+| - | - |
+|  |  |

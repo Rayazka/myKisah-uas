@@ -1,0 +1,20 @@
+[
+  {
+    "id": "journal-seed-001",
+    "userId": "user-seed-001",
+    "title": "Hari pertama kuliah",
+    "content": "Hari ini seru banget! Ketemu dosen baru dan teman-teman. Materi KPL cukup challenging tapi menarik.",
+    "mood": "Happy",
+    "state": "Saved",
+    "createdAt": "2025-01-15T10:00:00Z"
+  },
+  {
+    "id": "journal-seed-002",
+    "userId": "user-seed-001",
+    "title": "Deg-degan presentasi",
+    "content": "Besok presentasi CLO2. Udah siapin slide dan demo. Semoga lancar!",
+    "mood": "Anxious",
+    "state": "Draft",
+    "createdAt": "2025-01-16T14:00:00Z"
+  }
+]

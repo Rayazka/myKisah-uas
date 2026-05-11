@@ -1,0 +1,5 @@
+[
+  { "id": "char1-kdrama", "name": "Kira", "description": "Karakter ceria yang selalu optimis dan suka memberi semangat" },
+  { "id": "char2-mystic", "name": "Luna", "description": "Karakter misterius yang bijaksana dan suka mendengarkan" },
+  { "id": "char3-senpai", "name": "Ren",  "description": "Karakter cool yang memotivasi dengan cara chill" }
+]

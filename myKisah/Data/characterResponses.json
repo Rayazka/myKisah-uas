@@ -1,0 +1,19 @@
+[
+  { "id": "resp-kira-happy",   "characterId": "char1-kdrama", "mood": "Happy",   "response": "Yeay! Senang banget denger kamu happy! Pertahankan mood ini ya~ 😊" },
+  { "id": "resp-kira-sad",     "characterId": "char1-kdrama", "mood": "Sad",     "response": "Hiks, aku sedih kalau kamu sedih. Tapi ingat, setelah hujan pasti ada pelangi! Aku di sini buat kamu." },
+  { "id": "resp-kira-angry",   "characterId": "char1-kdrama", "mood": "Angry",   "response": "Waaah tarik napas dulu! Marah itu wajar kok. Ceritain aja ke aku apa yang bikin kesel." },
+  { "id": "resp-kira-anxious", "characterId": "char1-kdrama", "mood": "Anxious", "response": "Tenang... aku ngerti kamu cemas. Tarik napas dalam-dalam bareng aku ya. Semua bakal baik-baik aja." },
+  { "id": "resp-kira-calm",    "characterId": "char1-kdrama", "mood": "Calm",    "response": "Damai banget ya rasanya. Nikmatin momen ini, kamu udah keren banget hari ini!" },
+
+  { "id": "resp-luna-happy",   "characterId": "char2-mystic", "mood": "Happy",   "response": "Aura positifmu bersinar terang hari ini. Alam semesta ikut tersenyum." },
+  { "id": "resp-luna-sad",     "characterId": "char2-mystic", "mood": "Sad",     "response": "Rembulan pun pernah redup. Biarkan air matamu mengalir, aku akan menjagamu." },
+  { "id": "resp-luna-angry",   "characterId": "char2-mystic", "mood": "Angry",   "response": "Kemarahan adalah api yang bisa menghangatkan atau membakar. Kendalikan, jangan padamkan." },
+  { "id": "resp-luna-anxious", "characterId": "char2-mystic", "mood": "Anxious", "response": "Bintang di langit pun berkedip gelisah. Fokus pada satu hal kecil — tarik napas, satu langkah dulu." },
+  { "id": "resp-luna-calm",    "characterId": "char2-mystic", "mood": "Calm",    "response": "Kedamaian ini adalah hadiah dari jiwamu sendiri. Simpan dalam-dalam." },
+
+  { "id": "resp-ren-happy",   "characterId": "char3-senpai", "mood": "Happy",   "response": "Nice! Momen keren. Simpan energi positif ini buat besok ya." },
+  { "id": "resp-ren-sad",     "characterId": "char3-senpai", "mood": "Sad",     "response": "Gak apa-apa kok sedih. Istirahat dulu, recharge. Aku tungguin." },
+  { "id": "resp-ren-angry",   "characterId": "char3-senpai", "mood": "Angry",   "response": "Santai bro. Channel kemarahanmu ke hal yang produktif. Push-up seratus kali!" },
+  { "id": "resp-ren-anxious", "characterId": "char3-senpai", "mood": "Anxious", "response": "Overthinking? Stop. Tulis aja dulu apa yang kamu pikirin, nanti keliatan solusinya." },
+  { "id": "resp-ren-calm",    "characterId": "char3-senpai", "mood": "Calm",    "response": "Chill vibes. Ini momen langka, enjoy aja. Kamu udah on track." }
+]
