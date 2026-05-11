@@ -10,8 +10,6 @@ Banyak mahasiswa gagal menjaga konsistensi kebiasaan karena tidak memiliki siste
 
 ---
 
-
-
 ## Solusi yang Ditawarkan
 
 Fitur utama dalam myKisah:
@@ -22,12 +20,10 @@ Fitur utama dalam myKisah:
 
 ---
 
-
-
 ## Alur Aplikasi
 
 1. **User Registration** — User membuat akun dengan username unik
-2. **Pilih Character Companion** — User memilih karakter virtual favorit (Kira, Luna, Ren)
+2. **Pilih Character Companion** — User memilih karakter virtual favorit
 3. **Buat Journal Harian** — User menulis jurnal dengan mood (Happy/Sad/Angry/Anxious/Calm)
 4. **Submit Journal** — Journal berpindah dari Draft → Submitted melalui state machine
 5. **Character Response** — Character companion memberikan respons emosional berdasarkan mood journal (table-driven lookup dari JSON)

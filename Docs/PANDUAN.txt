@@ -1,0 +1,40 @@
+1. CLONE REPO
+   Buka PowerShell/CMD:
+   git clone https://github.com/Rayazka/myKisah-uas
+   cd myKisah
+
+2. PULL KE DEV
+   git fetch origin
+   git checkout dev
+   git pull origin dev
+
+3. KERJAKAN BAGIANMU
+   a. Checkout branch pribadi:
+      Rayazka: git checkout ray
+      Toni   : git checkout toni
+      Farel  : git checkout farel
+      Rafly  : git checkout rafly
+      Jojo   : git checkout jojo
+
+   b. Pull update terbaru dari dev:
+      git pull origin dev
+
+   c. Baca panduan di folder Docs/ (wajib!):
+      Docs/fase1.md  --> cari bagian nama masing-masing
+      Docs/fase2.md  --> cari bagian nama masing-masing
+      Docs/fase3.md  --> cari bagian nama masing-masing
+
+   d. Buka file yang disebutkan, cari "throw new NotImplementedException" -> isi
+   e. Build: cd myKisah && dotnet build  (pastikan 0 error)
+
+4. PUSH
+   git add .
+   git commit -m "feat: <deskripsi singkat apa yang kamu kerjakan>"
+   git push origin <branch-kamu>
+
+   Contoh:
+   git push origin ray      (Rayazka)
+   git push origin farel    (Farel)
+   git push origin toni     (Toni)
+   git push origin rafly    (Rafly)
+   git push origin jojo     (Jojo)
