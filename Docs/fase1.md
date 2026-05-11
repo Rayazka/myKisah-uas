@@ -1,11 +1,5 @@
 # Fase 1 — Fondasi Backend myKisah
 
-> **Status:** Skeleton file sudah dibuat, TIM HANYA PERLU ISI TODO.
-> **Aturan:** Semua file Fase 1 wajib commit ke `main` sebelum Fase 2 dimulai.
-> **Namespace:** `myKisah.Xxx` (m kecil, K besar)
-
----
-
 ---
 
 ## RAYAZKA ARIS — Models, Interfaces, Automata (16 file)
@@ -21,8 +15,6 @@ Teknik konstruksi: **Automata** + **Runtime Configuration**
 |---|---|
 | **Lokasi** | `myKisah/Models/User.cs` |
 | **Namespace** | `myKisah.Models` |
-| **Referensi** | `Task_myKisah.md` baris 69-79, 334-339 |
-| **Status file** | ✅ Sudah di-update, TIDAK ada TODO |
 
 **Isi:**
 ```csharp
@@ -43,8 +35,6 @@ public class User
 |---|---|
 | **Lokasi** | `myKisah/Models/Journal.cs` |
 | **Namespace** | `myKisah.Models` |
-| **Referensi** | `Task_myKisah.md` baris 69-79, 341-353 |
-| **Status file** | ✅ Sudah di-update, TIDAK ada TODO |
 
 **Isi:**
 ```csharp
@@ -69,8 +59,6 @@ public class Journal
 |---|---|
 | **Lokasi** | `myKisah/Models/Character.cs` |
 | **Namespace** | `myKisah.Models` |
-| **Referensi** | `Task_myKisah.md` baris 69-79, 356-361 |
-| **Status file** | ✅ Sudah di-update, TIDAK ada TODO |
 
 **Isi:**
 ```csharp
@@ -92,8 +80,6 @@ public class Character
 | **Lokasi** | `myKisah/Models/CharacterResponse.cs` |
 | **Namespace** | `myKisah.Models` |
 | **Teknik** | **Table-Driven** — ini adalah ROW dari tabel lookup |
-| **Referensi** | `Task_myKisah.md` baris 46-72, 355-370 |
-| **Status file** | ✅ Sudah di-update, TIDAK ada TODO |
 
 **Isi:**
 ```csharp
@@ -115,8 +101,6 @@ public class CharacterResponse
 |---|---|
 | **Lokasi** | `myKisah/Models/MoodType.cs` |
 | **Namespace** | `myKisah.Models` |
-| **Referensi** | `Task_myKisah.md` baris 150-164 |
-| **Status file** | ✅ Sudah di-update, TIDAK ada TODO |
 
 **Isi:**
 ```csharp
@@ -139,8 +123,6 @@ public enum MoodType
 |---|---|
 | **Lokasi** | `myKisah/Models/JournalState.cs` |
 | **Namespace** | `myKisah.Models` |
-| **Referensi** | `Task_myKisah.md` baris 97-124 |
-| **Status file** | ✅ Sudah di-update, TIDAK ada TODO |
 
 **Isi:**
 ```csharp
@@ -165,8 +147,6 @@ Semua file di folder `myKisah/Interfaces/`, namespace `myKisah.Interfaces`.
 | Atribut | Nilai |
 |---|---|
 | **Teknik** | **Generics** — generic type parameter `<T>` |
-| **Referensi** | `Task_myKisah.md` baris 82-94 |
-| **Status file** | ✅ Sudah dibuat, TIDAK ada TODO |
 
 **Interface yang disediakan:**
 ```csharp
@@ -190,8 +170,6 @@ Penjelasan: Ini adalah BASE interface untuk semua repository. Semua repository (
 |---|---|
 | **Extends** | `IRepository<User>` |
 | **Dikerjakan oleh** | Farel (Fase 2) |
-| **Referensi** | `Task_myKisah.md` baris 87 |
-| **Status file** | ✅ Sudah dibuat, TIDAK ada TODO |
 
 ```csharp
 using myKisah.Models;
@@ -213,8 +191,6 @@ public interface IUserRepository : IRepository<User>
 |---|---|
 | **Extends** | `IRepository<Journal>` |
 | **Dikerjakan oleh** | Rayazka (Fase 2) |
-| **Referensi** | `Task_myKisah.md` baris 88 |
-| **Status file** | ✅ Sudah dibuat, TIDAK ada TODO |
 
 ```csharp
 using myKisah.Models;
@@ -235,8 +211,6 @@ public interface IJournalRepository : IRepository<Journal>
 |---|---|
 | **Extends** | `IRepository<Character>` |
 | **Dikerjakan oleh** | Toni (Fase 2) |
-| **Referensi** | `Task_myKisah.md` baris 89 |
-| **Status file** | ✅ Sudah dibuat, TIDAK ada TODO |
 
 ```csharp
 using myKisah.Models;
@@ -258,8 +232,6 @@ public interface ICharacterRepository : IRepository<Character>
 | **Extends** | `IRepository<CharacterResponse>` |
 | **Teknik** | **Table-Driven** — `GetByMood` adalah inti table lookup |
 | **Dikerjakan oleh** | Toni (Fase 2) |
-| **Referensi** | `Task_myKisah.md` baris 46-72, 90 |
-| **Status file** | ✅ Sudah dibuat, TIDAK ada TODO |
 
 ```csharp
 using myKisah.Models;
@@ -279,8 +251,6 @@ Method `GetByMood` adalah JANTUNG Table-Driven. Method ini akan melakukan filter
 | Atribut | Nilai |
 |---|---|
 | **Dikerjakan oleh** | Farel (Fase 2) |
-| **Referensi** | `Task_myKisah.md` baris 91-92 |
-| **Status file** | ✅ Sudah dibuat, TIDAK ada TODO |
 
 ```csharp
 using myKisah.Models;
@@ -303,8 +273,6 @@ public interface IUserService
 |---|---|
 | **Teknik** | **Automata** + **Runtime Configuration** |
 | **Dikerjakan oleh** | Rayazka (Fase 2) |
-| **Referensi** | `Task_myKisah.md` baris 61-65, 91-92 |
-| **Status file** | ✅ Sudah dibuat, TIDAK ada TODO |
 
 ```csharp
 using myKisah.Models;
@@ -326,8 +294,6 @@ public interface IJournalService
 |---|---|
 | **Teknik** | **Table-Driven** |
 | **Dikerjakan oleh** | Toni (Fase 2) |
-| **Referensi** | `Task_myKisah.md` baris 67-72, 91-92 |
-| **Status file** | ✅ Sudah dibuat, TIDAK ada TODO |
 
 ```csharp
 using myKisah.Models;
@@ -352,8 +318,6 @@ Method `GenerateResponse` adalah inti Table-Driven — tidak boleh ada if/switch
 | **Lokasi** | `myKisah/Automata/JournalTrigger.cs` |
 | **Namespace** | `myKisah.Automata` |
 | **Teknik** | **Automata** — Input trigger untuk state machine |
-| **Referensi** | `Task_myKisah.md` baris 100-124 |
-| **Status file** | ✅ Sudah dibuat, TIDAK ada TODO |
 
 ```csharp
 namespace myKisah.Automata;
@@ -435,8 +399,6 @@ Teknik konstruksi: **Runtime Configuration** + **Code Reuse**
 |---|---|
 | **Lokasi** | `myKisah/appsettings.json` |
 | **Teknik** | **Runtime Configuration** |
-| **Referensi** | `Task_myKisah.md` baris 150-164 |
-| **Status** | ✅ SUDAH DIISI |
 
 **Section yang ada:**
 ```json
@@ -457,7 +419,7 @@ Teknik konstruksi: **Runtime Configuration** + **Code Reuse**
 
 ---
 
-### D2. `Utils/FilePathConfig.cs` ⚠️ ADA TODO!
+### D2. `Utils/FilePathConfig.cs` ADA TODO!
 | Atribut | Nilai |
 |---|---|
 | **Lokasi** | `myKisah/Utils/FilePathConfig.cs` |
@@ -465,8 +427,7 @@ Teknik konstruksi: **Runtime Configuration** + **Code Reuse**
 | **Teknik** | **Runtime Configuration** — path dibaca dari config, TIDAK di-hardcode |
 | **Dependency** | `IConfiguration` (DI inject) |
 | **Dipakai oleh** | `JsonStorageHelper` → semua Repository |
-| **Referensi** | `Task_myKisah.md` baris 140-164 |
-| **Status file** | ⚠️ Skeleton ada, TODO harus diisi |
+| **Status file** |  Skeleton ada, TODO harus diisi |
 
 **📋 TODO yang harus dikerjakan:**
 
