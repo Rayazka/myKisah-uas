@@ -8,6 +8,9 @@ using myKisah.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Controller
+builder.Services.AddControllers();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -28,7 +31,7 @@ builder.Services.AddSingleton<IJournalRepository, JsonJournalRepository>();
 builder.Services.AddSingleton<ICharacterRepository, JsonCharacterRepository>();
 builder.Services.AddSingleton<ICharacterResponseRepository, JsonCharacterResponseRepository>();
 
-// --- Services ---
+// Services 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();

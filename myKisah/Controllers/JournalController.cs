@@ -4,51 +4,22 @@ using myKisah.Models;
 
 namespace myKisah.Controllers;
 
-// ═══════════════════════════════════════════════════════════
-// KELAS: JournalController
-// DOMAIN: Journal System
-// TEKNIK: API Development
-// PENANGGUNG JAWAB: Rayazka Aris
-// ═══════════════════════════════════════════════════════════
-//
-// 📘 APA INI?
+// Journal System
+// PENANGGUNG JAWAB: Azka
+
+// ** Penjelasan 
 // HTTP endpoint handler untuk Journal management.
 // Route: /api/journal
-//
 // Endpoints:
 // - GET  /api/journal/{userId}  → Ambil semua journal milik user
 // - POST /api/journal           → Buat journal baru (State=Draft)
 // - DELETE /api/journal/{id}    → Hapus journal
-//
-// 📋 TODO:
-// [ ] 1. Constructor: terima IJournalService via DI
-//
-// [ ] 2. Implement GET /api/journal/{userId} — GetByUser(string userId):
-//        → var journals = _service.GetJournalsByUser(userId)
-//        → return Ok(journals)
-//
-// [ ] 3. Implement POST /api/journal — Create([FromBody] CreateJournalRequest request):
-//        → var journal = _service.CreateJournal(
-//              request.UserId, request.Title, request.Content,
-//              Enum.Parse<MoodType>(request.Mood))
-//        → return CreatedAtAction(nameof(GetById), new { id = journal.Id }, journal)
-//        (atau return Ok(journal))
-//
-// [ ] 4. Implement DELETE /api/journal/{id} — Delete(string id):
-//        → _service.DeleteJournal(id)
-//        → return NoContent()
-//
-// Tips:
-// - Mood dikirim sebagai string oleh client → parse ke enum di controller
-// - Pakai Enum.Parse<MoodType>(request.Mood) untuk konversi
-// - Exception dari invalid parse akan ditangkap middleware (ArgumentException → 400)
-//
-// Referensi: Task_myKisah.md baris 211-217
 
 [ApiController]
 [Route("api/journal")]
 public class JournalController : ControllerBase
 {
+    // Untuk business logic Journal butuh field IJournalService
     private readonly IJournalService _service;
 
     public JournalController(IJournalService service)
@@ -60,25 +31,39 @@ public class JournalController : ControllerBase
     [HttpGet("{userId}")]
     public IActionResult GetByUser(string userId)
     {
-        throw new NotImplementedException("TODO: GetByUser - panggil service, return Ok");
+        // Panggil service untuk dapatkan journal milik user, return Ok dengan data journal
+        var journals = _service.GetJournalsByUser(userId);
+        return Ok(journals);
     }
 
     // POST /api/journal
     [HttpPost]
     public IActionResult Create([FromBody] CreateJournalRequest request)
     {
-        throw new NotImplementedException("TODO: Create - parse mood, panggil service, return Ok/Created");
+        // Parse mood dari string ke enum untuk dipakai di service
+        var mood = Enum.Parse<MoodType>(request.Mood); 
+
+        // panggil service untuk buat journal baru, 
+        Journal journal = _service.CreateJournal(request.UserId, request.Title, request.Content, mood);
+
+        // return CreatedAtAction dengan data journal yang baru dibuat
+        return CreatedAtAction(nameof(GetByUser), new { userId = journal.UserId }, journal);
+        
     }
 
     // DELETE /api/journal/{id}
     [HttpDelete("{id}")]
     public IActionResult Delete(string id)
     {
-        throw new NotImplementedException("TODO: Delete - panggil service, return NoContent");
+        // Panggil service untuk hapus journal berdasarkan Id, 
+        // dan return NoContent kalau berhasil dihapus
+        _service.DeleteJournal(id);
+        return NoContent();
     }
 }
 
-// Request DTO
+// Request DTO untuk membuat journal baru.
+// intinya merepresentasikan JSON body dari client ketika buat journal baru (POST /api/journal).
 public class CreateJournalRequest
 {
     public string UserId { get; set; } = string.Empty;

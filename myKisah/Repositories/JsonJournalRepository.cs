@@ -10,7 +10,6 @@ namespace myKisah.Repositories;
 
 // ** Penjelasan:
 // Repository untuk akses data Journal di journals.json.
-// Mengimplementasikan IJournalRepository (extends IRepository<Journal>).
 
 public class JsonJournalRepository : IJournalRepository
 {

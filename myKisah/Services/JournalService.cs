@@ -14,49 +14,6 @@ namespace myKisah.Services;
 
 // ** Penjelasan:
     // Business logic untuk Journal management.
-    
-//
-//  TODO:
-// [ ] 1. Constructor: terima IJournalRepository + JournalStateMachine + IConfiguration via DI
-//        - Simpan semua di private field
-//
-// [ ] 2. Override ServiceName → "JournalService"
-//
-// [ ] 3. Implement CreateJournal(userId, title, content, mood):
-//        Precondition checks:
-//        a. Validator.ValidateNotEmpty(userId, "UserId")
-//        b. Validator.ValidateNotEmpty(title, "Title")
-//        c. Validator.ValidateNotEmpty(content, "Content")
-//        d. Validator.ValidateInEnum(mood, "Mood")
-//
-//        Runtime config checks (baca dari config!):
-//        e. int maxLength = _config.GetValue<int>("JournalConfig:MaxContentLength")
-//        f. var validMoods = _config.GetSection("JournalConfig:ValidMoods").Get<string[]>()
-//        g. Jika content.Length > maxLength → throw ArgumentException
-//        h. Jika !validMoods.Contains(mood.ToString()) → throw ArgumentException
-//
-//        Create:
-//        i. var journal = new Journal { UserId = userId, Title = title,
-//               Content = content, Mood = mood }
-//        j. _repository.Add(journal)  (Id, CreatedAt, State=Draft di-set di repo)
-//        k. Return journal
-//
-// [ ] 4. Implement GetJournalsByUser(string userId):
-//        a. Validator.ValidateNotEmpty(userId, "UserId")
-//        b. return _repository.GetByUserId(userId)
-//
-// [ ] 5. Implement DeleteJournal(string id):
-//        a. var journal = _repository.GetById(id)
-//        b. Validator.ValidateExists(journal, $"Journal dengan Id '{id}'")
-//        c. _repository.Delete(id)
-//        d. Return true
-//
-// Tips:
-// - _config.GetValue<int>("JournalConfig:MaxContentLength") untuk baca config
-// - GetSection(...).Get<string[]>() untuk baca array ValidMoods
-// - JournalStateMachine siap dipakai untuk method Transition (tambahan opsional)
-//
-// Referensi: Task_myKisah.md baris 61-65, 150-164, 201-208
 
 // Implement ServiceBase untuk logging, IJournalService untuk kontrak service.
 public class JournalService : ServiceBase, IJournalService
