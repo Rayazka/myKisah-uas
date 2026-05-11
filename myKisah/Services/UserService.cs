@@ -77,25 +77,89 @@ public class UserService : ServiceBase, IUserService
         _repository = repository;
     }
 
-    protected override string ServiceName => throw new NotImplementedException("TODO: return 'UserService'");
+    protected override string ServiceName => "UserService";
 
     public User RegisterUser(string username)
     {
-        throw new NotImplementedException("TODO: RegisterUser - validasi + simpan user baru");
+        try
+        {
+            Validator.ValidateNotEmpty(username, "Username");
+
+            if (_repository.UsernameExists(username))
+            {
+                throw new ArgumentException(
+                    $"Username '{username}' sudah terdaftar"
+                );
+            }
+
+            var user = new User
+            {
+                Username = username
+            };
+
+            _repository.Add(user);
+
+            return user;
+        }
+        catch (Exception ex)
+        {
+            LogError("RegisterUser gagal", ex);
+            throw;
+        }
     }
 
     public IEnumerable<User> GetAllUsers()
     {
-        throw new NotImplementedException("TODO: GetAllUsers - return semua user");
+        return _repository.GetAll();
     }
 
     public User? UpdateUser(string id, string username)
     {
-        throw new NotImplementedException("TODO: UpdateUser - validasi + update username");
+        try
+        {
+            Validator.ValidateNotEmpty(username, "Username");
+
+            var user = _repository.GetById(id);
+
+            Validator.ValidateExists(user, $"User dengan Id '{id}'");
+
+            if (_repository.UsernameExists(username) &&
+                !user!.Username.Equals(username, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException(
+                    $"Username '{username}' sudah terdaftar"
+                );
+            }
+
+            user.Username = username;
+
+            _repository.Update(user);
+
+            return user;
+        }
+        catch (Exception ex)
+        {
+            LogError("UpdateUser gagal", ex);
+            throw;
+        }
     }
 
     public bool DeleteUser(string id)
     {
-        throw new NotImplementedException("TODO: DeleteUser - validasi exists + hapus");
+        try
+        {
+            var user = _repository.GetById(id);
+
+            Validator.ValidateExists(user, $"User dengan Id '{id}'");
+
+            _repository.Delete(id);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            LogError("DeleteUser gagal", ex);
+            throw;
+        }
     }
 }

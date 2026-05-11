@@ -67,28 +67,32 @@ public class UserController : ControllerBase
     [HttpGet]
     public IActionResult GetAll()
     {
-        throw new NotImplementedException("TODO: GetAll - panggil service, return Ok");
+        var users = _service.GetAllUsers();
+        return Ok(users);
     }
 
     // POST /api/user
     [HttpPost]
     public IActionResult Register([FromBody] RegisterRequest request)
     {
-        throw new NotImplementedException("TODO: Register - panggil service, return Created или Ok");
+        var user = _service.RegisterUser(request.Username);
+        return Ok(user);
     }
 
     // PUT /api/user/{id}
     [HttpPut("{id}")]
     public IActionResult Update(string id, [FromBody] UpdateUserRequest request)
     {
-        throw new NotImplementedException("TODO: Update - panggil service, return Ok");
+        var user = _service.UpdateUser(id, request.Username);
+        return Ok(user);
     }
 
     // DELETE /api/user/{id}
     [HttpDelete("{id}")]
     public IActionResult Delete(string id)
     {
-        throw new NotImplementedException("TODO: Delete - panggil service, return NoContent");
+        _service.DeleteUser(id);
+        return NoContent();
     }
 }
 
