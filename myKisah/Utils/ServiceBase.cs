@@ -16,12 +16,13 @@ namespace myKisah.Utils
 
     public abstract class ServiceBase
     {
+        // Validator untuk memeriksa input dan entity
         protected readonly ValidationHelper Validator = new ValidationHelper();
 
-        // Harus di-override tiap service, misal "UserService"
+        // Nama service, wajib di-override di setiap service
         protected abstract string ServiceName { get; }
 
-        // Logging sederhana
+        // Shared logging error, bisa dipakai di semua service
         protected void LogError(string message, Exception ex)
         {
             Console.WriteLine($"[ERROR] [{ServiceName}] {message}: {ex.Message}");
