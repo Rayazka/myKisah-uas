@@ -16,7 +16,7 @@ namespace myKisah.Utils
 
     public abstract class ServiceBase
     {
-        protected readonly ValidationHelper _validator = new ValidationHelper();
+        protected readonly ValidationHelper Validator = new ValidationHelper();
 
         // Harus di-override tiap service, misal "UserService"
         protected abstract string ServiceName { get; }

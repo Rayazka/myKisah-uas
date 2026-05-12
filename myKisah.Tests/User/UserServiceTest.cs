@@ -4,7 +4,7 @@ using myKisah.Models;
 using myKisah.Services;
 using Xunit;
 
-namespace myKisah.Tests.User;
+namespace myKisah.Tests.UserTests;
 
 public class UserServiceTest
 {
