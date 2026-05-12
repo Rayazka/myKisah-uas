@@ -4,100 +4,80 @@ using myKisah.Utils;
 
 namespace myKisah.Repositories;
 
-// ═══════════════════════════════════════════════════════════
-// KELAS: JsonCharacterResponseRepository
-// DOMAIN: Character Companion System
-// TEKNIK: TABLE-DRIVEN (INI ADALAH INTI TABLE-DRIVEN!)
-// PENANGGUNG JAWAB: Toni Kurniawan
-// ═══════════════════════════════════════════════════════════
-//
-// 📘 APA INI?
-// Repository untuk akses tabel response karakter di characterResponses.json.
-// INI ADALAH JANTUNG DARI TEKNIK TABLE-DRIVEN!
-//
-// Method GetByMood(characterId, mood) adalah method INTI yang mendemonstrasikan
-// table-driven. Method ini melakukan filter data dari JSON — SEMUA DATA RESPONSE
-// ADA DI characterResponses.json, BUKAN di kode C#.
-//
-// 🧠 KENAPA TABLE-DRIVEN?
-// Bandingkan dua pendekatan:
-//
-// ❌ IF-ELSE (SALAH - JANGAN DILAKUKAN):
-//   if (mood == MoodType.Happy) return "Senang mendengarnya!";
-//   else if (mood == MoodType.Sad) return "Tidak apa-apa...";
-//   // Masalah: tambah mood baru = ubah kode + recompile
-//
-// ✅ TABLE-DRIVEN (BENAR - LAKUKAN INI):
-//   _storage.ReadJson<CharacterResponse>(...)
-//       .Where(r => r.CharacterId == characterId && r.Mood == mood)
-//   // Keunggulan: tambah response baru = edit characterResponses.json saja
-//   // Tidak ada if/switch statement!
-//
-// 📋 TODO:
-// [ ] 1. Constructor: terima JsonStorageHelper + FilePathConfig via DI
-//
-// [ ] 2. Implement method generic CRUD (GetAll, GetById, Add, Update, Delete)
-//        → sama seperti repository lain
-//
-// [ ] 3. IMPLEMENT GetByMood — METHOD INTI TABLE-DRIVEN:
-//        → return GetAll().Where(r => r.CharacterId == characterId && r.Mood == mood)
-//        PASTIKAN TIDAK ADA IF/SWITCH STATEMENT!
-//        HANYA PAKAI LINQ WHERE DARI DATA JSON!
-//
-// ⚠️ PERINGATAN UNTUK TONI:
-// Method ini HARUS pure LINQ lookup. Kalau reviewer melihat if/switch/else
-// di method ini, teknik Table-Driven kamu GAGAL. Semua mapping mood→response
-// harus dari characterResponses.json.
-//
-// Tips:
-// - GetByMood return IEnumerable<CharacterResponse> — mungkin lebih dari 1
-// - Service yang akan ambil .FirstOrDefault() atau handle multiple
-// - Jangan filter di memory dengan if — pakai LINQ Where dari data JSON
-//
-// Referensi: Task_myKisah.md baris 46-72, 355-370
-
+/// Repository untuk akses tabel response karakter di Data/characterResponses.json.
 public class JsonCharacterResponseRepository : ICharacterResponseRepository
 {
+    // Variabel readonly untuk menyimpan referensi ke helper penyimpanan dan konfigurasi path
     private readonly JsonStorageHelper _storage;
     private readonly FilePathConfig _filePath;
 
+    /// Constructor yang menerapkan Dependency Injection (DI).
+    /// Kelas ini tidak membuat JsonStorageHelper sendiri, melainkan menerimanya dari luar,
+    /// sehingga lebih mudah untuk di-mocking saat Unit Testing.
     public JsonCharacterResponseRepository(JsonStorageHelper storage, FilePathConfig filePath)
     {
         _storage = storage;
         _filePath = filePath;
     }
 
+    /// Mengambil seluruh data respons karakter dari file JSON.
+    /// Operasi ini membaca langsung dari storage menggunakan helper.
     public IEnumerable<CharacterResponse> GetAll()
     {
-        throw new NotImplementedException("TODO: GetAll - baca dari characterResponses.json");
+        return _storage.ReadJson<CharacterResponse>(_filePath.ResponsesFile);
     }
 
+    /// Mencari spesifik satu data respons berdasarkan ID uniknya.
+    /// Menggunakan LINQ FirstOrDefault agar mengembalikan null jika ID tidak ditemukan.
     public CharacterResponse? GetById(string id)
     {
-        throw new NotImplementedException("TODO: GetById - FirstOrDefault");
+        return GetAll().FirstOrDefault(r => r.Id == id);
     }
 
+    /// Menambahkan data respons karakter baru ke dalam file JSON.
+    /// Karena ini flat-file database (JSON), kita harus membaca semua data dulu,
+    /// menambahkannya ke list memori, lalu menulis ulang keseluruhan list ke file.
     public void Add(CharacterResponse entity)
     {
-        throw new NotImplementedException("TODO: Add - simpan (jarang dipakai, data manual di JSON)");
+        var responses = GetAll().ToList(); // Tarik semua data ke memori
+        entity.Id = Guid.NewGuid().ToString(); // Generate ID unik (UUID) untuk data baru
+        responses.Add(entity); // Tambahkan entitas baru ke dalam list
+        _storage.WriteJson(_filePath.ResponsesFile, responses); // Timpa file JSON dengan list terbaru
     }
 
+    /// Memperbarui (update) data respons yang sudah ada berdasarkan ID.
     public void Update(CharacterResponse entity)
     {
-        throw new NotImplementedException("TODO: Update - find index, replace, write");
+        var responses = GetAll().ToList();
+        
+        // Mencari posisi index dari data yang ingin diubah
+        var index = responses.FindIndex(r => r.Id == entity.Id);
+        
+        //  Jika data tidak ditemukan (index -1), lemparkan error
+        if (index == -1)
+            throw new KeyNotFoundException($"CharacterResponse dengan Id '{entity.Id}' tidak ditemukan.");
+            
+        responses[index] = entity; // Ganti data lama dengan data baru di index tersebut
+        _storage.WriteJson(_filePath.ResponsesFile, responses); // Simpan perubahan ke file JSON
     }
 
+    /// Menghapus data respons dari file JSON berdasarkan ID.
     public void Delete(string id)
     {
-        throw new NotImplementedException("TODO: Delete - RemoveAll, write");
+        var responses = GetAll().ToList();
+        
+        // Menghapus semua elemen dalam list yang memiliki Id yang cocok
+        responses.RemoveAll(r => r.Id == id);
+        
+        // Simpan sisa list ke dalam file JSON
+        _storage.WriteJson(_filePath.ResponsesFile, responses);
     }
 
-    /// <summary>
-    /// INTI TABLE-DRIVEN: Filter response berdasarkan CharacterId dan Mood.
-    /// PASTIKAN TIDAK ADA IF/SWITCH — hanya LINQ Where.
-    /// </summary>
+    /// INTI TABLE-DRIVEN: Filter response berdasarkan CharacterId + Mood.
+    /// Metode ini mencari semua kemungkinan kalimat respons untuk satu karakter dan satu mood tertentu.
     public IEnumerable<CharacterResponse> GetByMood(string characterId, MoodType mood)
     {
-        throw new NotImplementedException("TODO: GetByMood - Where(characterId && mood). NO IF/SWITCH!");
+        // Mengeksekusi query pencarian secara dinamis ke koleksi data
+        return GetAll().Where(r => r.CharacterId == characterId && r.Mood == mood);
     }
 }
