@@ -1,73 +1,33 @@
+// Import library untuk bisa pakai IConfiguration
+using Microsoft.Extensions.Configuration;
+
+// Namespace = "alamat" kelas ini di dalam project
 namespace myKisah.Utils;
-
-// ═══════════════════════════════════════════════════════════
-// KELAS: FilePathConfig
-// DOMAIN: Storage Layer (dipakai oleh JsonStorageHelper)
-// TEKNIK: Runtime Configuration
-// PENANGGUNG JAWAB: Rafly Putra
-// ═══════════════════════════════════════════════════════════
-//
-// 📘 APA INI?
-// Kelas yang membaca konfigurasi path file JSON dari appsettings.json.
-// Path file TIDAK di-hardcode di kode — bisa diubah di config tanpa recompile.
-//
-// 🧠 KENAPA RUNTIME CONFIGURATION?
-// Masalah: Tanpa ini, path file seperti "Data/users.json" di-hardcode
-//   di setiap repository. Kalau mau ganti lokasi file, harus ubah kode.
-// Solusi: Baca dari appsettings.json section "StoragePaths".
-//   - Ubah path file = cukup edit appsettings.json
-//   - Environment berbeda bisa punya path berbeda (Dev/Prod)
-//   - Semua path terpusat di satu tempat
-//
-// Section appsettings.json yang dibaca:
-// {
-//   "StoragePaths": {
-//     "UsersFile": "Data/users.json",
-//     "JournalsFile": "Data/journals.json",
-//     "CharactersFile": "Data/characters.json",
-//     "ResponsesFile": "Data/characterResponses.json"
-//   }
-// }
-//
-// 📋 TODO:
-// [ ] 1. Constructor: terima IConfiguration via DI
-// [ ] 2. Baca section "StoragePaths" dari config
-// [ ] 3. Implement 4 property getter:
-//        - UsersFile     → config["StoragePaths:UsersFile"]
-//        - JournalsFile  → config["StoragePaths:JournalsFile"]
-//        - CharactersFile → config["StoragePaths:CharactersFile"]
-//        - ResponsesFile → config["StoragePaths:ResponsesFile"]
-// [ ] 4. Property harus readonly (hanya get), value dibaca sekali di constructor
-//
-// Tips:
-// - Pakai IConfiguration.GetSection("StoragePaths")
-// - Bisa simpan nilai di private field saat constructor
-// - Atau baca langsung IConfiguration di getter (lebih sederhana)
-//
-// Referensi: Task_myKisah.md baris 140-164
-
-// public class FilePathConfig
-// {
-    
-// }
-
 
 public class FilePathConfig
 {
+    // Field untuk menyimpan konfigurasi dari appsettings.json
     private readonly IConfiguration _configuration;
 
+    // Constructor: dipanggil otomatis saat kelas ini dibuat
+    // IConfiguration di-inject otomatis oleh sistem (Dependency Injection)
     public FilePathConfig(IConfiguration configuration)
     {
-       _configuration = configuration;
+        // DbC: kalau configuration null, langsung lempar error
+        // Supaya tidak ada bug tersembunyi di kemudian hari
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
-    // TODO: Implement property getter — baca dari config section "StoragePaths"
-    public string UsersFile =>
-        _configuration["StoragePaths:UsersFile"] ?? "Data/users.json";
-    public string JournalsFile =>
-        _configuration["StoragePaths:JournalsFile"] ?? "Data/journals.json";
-    public string CharactersFile =>
-        _configuration["StoragePaths:CharactersFile"] ?? "Data/characters.json";
-    public string ResponsesFile =>
-        _configuration["StoragePaths:ResponsesFile"] ?? "Data/characterResponses.json";
+    // Property: baca path file users.json dari appsettings.json
+    // Kalau tidak ketemu di config, pakai nilai default "Data/users.json"
+    public string UsersFile => _configuration["StoragePaths:UsersFile"] ?? "Data/users.json";
+
+    // Property: baca path file journals.json dari appsettings.json
+    public string JournalsFile => _configuration["StoragePaths:JournalsFile"] ?? "Data/journals.json";
+
+    // Property: baca path file characters.json dari appsettings.json
+    public string CharactersFile => _configuration["StoragePaths:CharactersFile"] ?? "Data/characters.json";
+
+    // Property: baca path file characterResponses.json dari appsettings.json
+    public string ResponsesFile => _configuration["StoragePaths:ResponsesFile"] ?? "Data/characterResponses.json";
 }
