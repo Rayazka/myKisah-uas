@@ -52,9 +52,9 @@ public class Rafly_StorageTests : IDisposable
         _storage = new JsonStorageHelper(_filePathConfig, mockEnv.Object);
     }
 
-    // ═══════════════════════════════════════
+    
     // UNIT TEST 1: Baca file yang sudah ada
-    // ═══════════════════════════════════════
+  
     [Fact]
     public void ReadJson_ExistingFile_ReturnsData()
     {
@@ -78,9 +78,9 @@ public class Rafly_StorageTests : IDisposable
         Assert.Equal("Item1", result[0].Name);
     }
 
-    // ═══════════════════════════════════════
+    
     // UNIT TEST 2: Baca file yang belum ada
-    // ═══════════════════════════════════════
+   
     [Fact]
     public void ReadJson_MissingFile_ReturnsEmpty()
     {
@@ -98,9 +98,9 @@ public class Rafly_StorageTests : IDisposable
         Assert.True(File.Exists(fullPath)); // File otomatis terbuat
     }
 
-    // ═══════════════════════════════════════
+    
     // UNIT TEST 3: Tulis lalu baca kembali
-    // ═══════════════════════════════════════
+    
     [Fact]
     public void WriteJson_ValidData_PersistsCorrectly()
     {
@@ -125,9 +125,9 @@ public class Rafly_StorageTests : IDisposable
         Assert.Equal("Item5", result[4].Name);
     }
 
-    // ═══════════════════════════════════════
+    
     // UNIT TEST 4: Filename null harus error
-    // ═══════════════════════════════════════
+    
     [Fact]
     public void ReadJson_NullFilename_ThrowsException()
     {
@@ -136,9 +136,9 @@ public class Rafly_StorageTests : IDisposable
             _storage.ReadJson<TestModel>(null!));
     }
 
-    // ═══════════════════════════════════════
+    
     // UNIT TEST 5: Data null harus error
-    // ═══════════════════════════════════════
+    
     [Fact]
     public void WriteJson_NullData_ThrowsException()
     {
@@ -147,9 +147,9 @@ public class Rafly_StorageTests : IDisposable
             _storage.WriteJson<TestModel>("test.json", null!));
     }
 
-    // ═══════════════════════════════════════
+    
     // UNIT TEST 6: FilePathConfig baca dari config
-    // ═══════════════════════════════════════
+    
     [Fact]
     public void FilePathConfig_LoadsPathsFromConfig()
     {
@@ -174,9 +174,9 @@ public class Rafly_StorageTests : IDisposable
         Assert.Equal("Data/characterResponses.json", filePathConfig.ResponsesFile);
     }
 
-    // ═══════════════════════════════════════
+    
     // PERFORMANCE TEST 1: Baca file 100KB
-    // ═══════════════════════════════════════
+    
     [Fact]
     public void ReadJson_100KB_Under100ms()
     {
@@ -202,9 +202,9 @@ public class Rafly_StorageTests : IDisposable
             $"ReadJson terlalu lambat: {sw.ElapsedMilliseconds}ms (max 100ms)");
     }
 
-    // ═══════════════════════════════════════
+    
     // PERFORMANCE TEST 2: Write + Read 100 item
-    // ═══════════════════════════════════════
+    
     [Fact]
     public void WriteRead_RoundTrip_100Items_Under50ms()
     {
