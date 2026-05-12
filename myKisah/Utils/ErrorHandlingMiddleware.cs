@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-namespace myKisah.Middleware;
+namespace myKisah.Utils;
 
 // Global Error Handling (semua request)
 // PENANGGUNG JAWAB: Josefhint

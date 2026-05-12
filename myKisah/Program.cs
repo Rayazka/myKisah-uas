@@ -1,5 +1,4 @@
 using myKisah.Components;
-using myKisah.Middleware;
 using myKisah.Utils;
 using myKisah.Interfaces;
 using myKisah.Repositories;
