@@ -1,90 +1,89 @@
-using myKisah.Interfaces;
-using myKisah.Models;
-using myKisah.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using myKisah.Models;      // Asumsi namespace untuk model Character, CharacterResponse, MoodType
+using myKisah.Interfaces;  // Asumsi namespace untuk IRepository<T> dan ICharacterService
 
-namespace myKisah.Services;
-
-// ═══════════════════════════════════════════════════════════
-// KELAS: CharacterService
-// DOMAIN: Character Companion System
-// TEKNIK: Table-Driven (INI ADALAH INTI TABLE-DRIVEN!)
-// PENANGGUNG JAWAB: Toni Kurniawan
-// ═══════════════════════════════════════════════════════════
-//
-// 📘 APA INI?
-// Business logic untuk Character Companion.
-// Extends ServiceBase. Implements ICharacterService.
-//
-// Method GenerateResponse() adalah method INTI yang mendemonstrasikan
-// teknik TABLE-DRIVEN. Method ini TIDAK BOLEH mengandung if/switch —
-// seluruh lookup didelegasikan ke repository → JSON file.
-//
-// 🧠 ALUR TABLE-DRIVEN:
-// Controller → CharacterService.GenerateResponse(charId, mood)
-//           → CharacterResponseRepository.GetByMood(charId, mood)  [LINQ Where]
-//           → characterResponses.json                              [DATA]
-//           → return response.Response (string text)
-//
-// Di seluruh flow ini, TIDAK ADA if/switch/else berdasarkan mood.
-// Semua mapping mood→response ada di characterResponses.json.
-//
-// 📋 TODO:
-// [ ] 1. Constructor: terima ICharacterRepository + ICharacterResponseRepository via DI
-//
-// [ ] 2. Override ServiceName → "CharacterService"
-//
-// [ ] 3. Implement GetAllCharacters():
-//        → return _characterRepo.GetAll()
-//
-// [ ] 4. IMPLEMENT GenerateResponse — METHOD INTI TABLE-DRIVEN:
-//        a. Validator.ValidateNotEmpty(characterId, "CharacterId")
-//        b. Validator.ValidateInEnum(mood, "Mood")
-//
-//        c. var responses = _responseRepo.GetByMood(characterId, mood)
-//        d. var response = responses.FirstOrDefault()
-//        e. Validator.ValidateExists(response, $"Response untuk character '{characterId}' dengan mood '{mood}'")
-//
-//        f. return response.Response  (string text-nya)
-//
-// ⚠️ PERINGATAN UNTUK TONI:
-// JANGAN PERNAH menulis:
-//   if (mood == MoodType.Happy) return "Selamat!";
-//   else if (mood == MoodType.Sad) return "Semangat!";
-// Ini MELANGGAR teknik table-driven dan akan mengurangi nilai kamu.
-//
-// Yang BENAR:
-//   var response = _responseRepo.GetByMood(characterId, mood).FirstOrDefault();
-//   return response.Response;
-// Data response ada di characterResponses.json.
-//
-// Referensi: Task_myKisah.md baris 67-72, 201-208
-
-public class CharacterService : ServiceBase, ICharacterService
+namespace myKisah.Services
 {
-    private readonly ICharacterRepository _characterRepo;
-    private readonly ICharacterResponseRepository _responseRepo;
-
-    public CharacterService(
-        ICharacterRepository characterRepo,
-        ICharacterResponseRepository responseRepo)
+    public class CharacterService : ICharacterService
     {
-        _characterRepo = characterRepo;
-        _responseRepo = responseRepo;
-    }
+        // Menggunakan generic repository dari Farel/Rayazka untuk membaca JSON
+        private readonly IRepository<Character> _characterRepository;
+        private readonly IRepository<CharacterResponse> _responseRepository;
 
-    protected override string ServiceName => throw new NotImplementedException("TODO: return 'CharacterService'");
+        // Dependency Injection untuk memasukkan repository
+        public CharacterService(
+            IRepository<Character> characterRepository, 
+            IRepository<CharacterResponse> responseRepository)
+        {
+            _characterRepository = characterRepository;
+            _responseRepository = responseRepository;
+        }
 
-    public IEnumerable<Character> GetAllCharacters()
-    {
-        throw new NotImplementedException("TODO: GetAllCharacters - return semua karakter");
-    }
+        /// <summary>
+        /// Mengambil semua data karakter yang tersedia
+        /// </summary>
+        public IEnumerable<Character> GetAllCharacters()
+        {
+            return _characterRepository.GetAll();
+        }
 
-    /// <summary>
-    /// GenerateResponse adalah INTI TABLE-DRIVEN.
-    /// TIDAK BOLEH ADA IF/SWITCH — lookup ke JSON via repository.
-    /// </summary>
-    public string GenerateResponse(string characterId, MoodType mood)
-    {
-        throw new NotImplementedException("TODO: GenerateResponse - validasi + lookup table. NO IF/SWITCH!");
+        /// <summary>
+        /// Menetapkan karakter pilihan pengguna
+        /// </summary>
+        public Character AssignCharacter(string characterId)
+        {
+            // Pre-condition check
+            if (string.IsNullOrWhiteSpace(characterId))
+            {
+                throw new ArgumentNullException(nameof(characterId), "Character ID tidak boleh null atau kosong.");
+            }
+
+            var character = _characterRepository.GetById(characterId);
+            if (character == null)
+            {
+                throw new KeyNotFoundException($"Karakter dengan ID {characterId} tidak ditemukan.");
+            }
+
+            return character;
+        }
+
+        /// Menghasilkan respons menggunakan teknik Table-Driven mapping dari file JSON
+        public string GenerateResponse(string characterId, MoodType mood)
+        {
+            // --- Design by Contract (DbC) ---
+            
+            // 1. Validasi characterId tidak boleh null
+            if (string.IsNullOrWhiteSpace(characterId))
+            {
+                throw new ArgumentNullException(nameof(characterId), "Character ID tidak boleh null.");
+            }
+
+            // 2. Validasi mood harus ada dalam daftar valid 
+            if (!Enum.IsDefined(typeof(MoodType), mood))
+            {
+                throw new ArgumentException("Input mood tidak valid atau tidak dikenali.", nameof(mood));
+            }
+
+            // --- Implementasi Table-Driven ---
+            
+            // Mengambil semua data pemetaan respons dari repository (characterResponses.json)
+            var allResponses = _responseRepository.GetAll();
+
+            // Melakukan lookup (mapping) berdasarkan characterId dan mood
+            var mappedResponse = allResponses.FirstOrDefault(r => 
+                r.CharacterId == characterId && 
+                r.Mood == mood
+            );
+
+            // Jika respons untuk kombinasi karakter dan mood tersebut tidak ditemukan di "tabel" JSON
+            if (mappedResponse == null)
+            {
+                return "Maaf, aku tidak tahu harus merespons apa untuk perasaan ini.";
+            }
+
+            return mappedResponse.Response;
+        }
     }
 }
