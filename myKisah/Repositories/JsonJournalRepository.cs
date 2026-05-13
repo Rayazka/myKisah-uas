@@ -11,41 +11,6 @@ namespace myKisah.Repositories;
 // ** Penjelasan:
 // Repository untuk akses data Journal di journals.json.
 
-// public class JsonJournalRepository : IJournalRepository
-// {
-//     public void Add(Journal entity)
-//     {
-//         throw new NotImplementedException();
-//     }
-
-//     public void Delete(string id)
-//     {
-//         throw new NotImplementedException();
-//     }
-
-//     public IEnumerable<Journal> GetAll()
-//     {
-//         throw new NotImplementedException();
-//     }
-
-//     public Journal? GetById(string id)
-//     {
-//         throw new NotImplementedException();
-//     }
-
-//     public IEnumerable<Journal> GetByUserId(string userId)
-//     {
-//         throw new NotImplementedException();
-//     }
-
-//     public void Update(Journal entity)
-//     {
-//         throw new NotImplementedException();
-//     }
-// }
-
-
-// ** Catatan: INI KODE SEMENTARA, BUAT TESTING AJA
 public class JsonJournalRepository : IJournalRepository
 {
     private readonly JsonStorageHelper _storage; // Helper untuk baca/tulis JSON

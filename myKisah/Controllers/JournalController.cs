@@ -51,6 +51,39 @@ public class JournalController : ControllerBase
         
     }
 
+    // POST /api/journal/{id}/submit
+[HttpPost("{id}/submit")]
+public IActionResult Submit(string id)
+{
+    try 
+    {
+        // Memanggil service yang sudah menggunakan Automata Transition
+        var journal = _service.SubmitJournal(id); 
+        return Ok(journal);
+    }
+    catch (InvalidOperationException ex)
+    {
+        // Jika transisi ilegal (misal: sudah Submitted mau di-Submit lagi)
+        // Ini membuktikan penjaga (Guard) Automata bekerja!
+        return BadRequest(new { message = ex.Message });
+    }
+}
+
+// POST /api/journal/{id}/save
+[HttpPost("{id}/save")]
+public IActionResult Save(string id)
+{
+    try 
+    {
+        var journal = _service.SaveJournal(id);
+        return Ok(journal);
+    }
+    catch (InvalidOperationException ex)
+    {
+        return BadRequest(new { message = ex.Message });
+    }
+}
+
     // DELETE /api/journal/{id}
     [HttpDelete("{id}")]
     public IActionResult Delete(string id)
