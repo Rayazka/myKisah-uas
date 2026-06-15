@@ -1,0 +1,28 @@
+.character-card {
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 1px solid #dee2e6;
+}
+
+.character-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.character-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.character-avatar span {
+    font-size: 2rem;
+}
+
+.character-card .card-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+}
