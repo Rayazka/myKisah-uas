@@ -34,5 +34,14 @@
     "mood": "Sad",
     "state": "Draft",
     "createdAt": "2026-05-12T08:48:36.1004426Z"
+  },
+  {
+    "id": "4780b348-7dd2-4b30-b544-bf566b0dd668",
+    "userId": "ee3cd8fa-3333-4255-8a7e-c95592907822",
+    "title": "Aku cinta Jean",
+    "content": "ga da yang tau",
+    "mood": "Happy",
+    "state": "Draft",
+    "createdAt": "2026-05-13T07:22:01.6139068Z"
   }
 ]

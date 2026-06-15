@@ -1,0 +1,45 @@
+@namespace myKisah.Components.Shared
+
+@if (Show)
+{
+    <div class="modal-backdrop fade show" style="display: block;"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close"
+                            @onclick="() => OnResult.InvokeAsync(false)"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@Message</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary"
+                            @onclick="() => OnResult.InvokeAsync(false)">
+                        Batal
+                    </button>
+                    <button type="button" class="btn btn-danger"
+                            @onclick="() => OnResult.InvokeAsync(true)">
+                        Ya
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Konfirmasi";
+
+    [Parameter]
+    public string Message { get; set; } = "Apakah Anda yakin?";
+
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnResult { get; set; }
+}

@@ -1,0 +1,135 @@
+@page "/characters/{Id}"
+@rendermode InteractiveServer
+
+@inject ICharacterService CharacterService
+@inject NavigationManager Navigation
+
+<PageTitle>@(_character?.Name ?? "Character Chat") — myKisah</PageTitle>
+
+<div class="container-fluid">
+    @if (_loading)
+    {
+        <p class="text-muted">Loading character...</p>
+    }
+    else if (_character == null)
+    {
+        <AlertMessage Message="Karakter tidak ditemukan." IsError="true" Show="true" />
+    }
+    else
+    {
+        <div class="chat-layout">
+            @* Panel Kiri: Info Karakter *@
+            <div class="character-panel">
+                <button class="btn btn-outline-secondary btn-sm mb-3" @onclick="GoBack">
+                    ← Kembali
+                </button>
+                <div class="text-center mb-3">
+                    <div class="character-avatar-lg mb-2"
+                         style="background: @GetGradient(_character);">
+                        <span>@GetEmoji(_character)</span>
+                    </div>
+                    <h4>@_character.Name</h4>
+                    <p class="text-muted small">@_character.Description</p>
+                </div>
+            </div>
+
+            @* Panel Kanan: Chat Area *@
+            <div class="chat-area">
+                <AlertMessage Message="_error" IsError="true" Show="_hasError" />
+
+                @* Chat History *@
+                <div class="chat-messages">
+                    @if (!_history.Any())
+                    {
+                        <EmptyState Message="@($"Pilih mood untuk memulai percakapan dengan {_character!.Name}")" />
+                    }
+                    else
+                    {
+                        @foreach (var entry in _history)
+                        {
+                            <div class="chat-bubble chat-bubble-user">
+                                <small class="bubble-label">Kamu — @GetMoodEmoji(entry.Mood) @entry.Mood</small>
+                                <div class="bubble-content">@GetMoodEmoji(entry.Mood) @entry.Mood</div>
+                            </div>
+                            <div class="chat-bubble chat-bubble-character">
+                                <small class="bubble-label">@_character.Name</small>
+                                <div class="bubble-content">@entry.Response</div>
+                            </div>
+                            <small class="bubble-time">@entry.Time.ToString("HH:mm")</small>
+                        }
+                    }
+                </div>
+
+                @* Input Area *@
+                <div class="chat-input">
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <MoodPicker @bind-SelectedMood="_selectedMood"
+                                    Disabled="_sending" />
+                        <button class="btn btn-primary"
+                                @onclick="SendMood"
+                                disabled="@_sending">
+                            @(_sending ? "..." : "Kirim")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Id { get; set; } = default!;
+
+    private Character? _character;
+    private MoodType _selectedMood = MoodType.Happy;
+    private List<ChatEntry> _history = new();
+    private bool _loading;
+    private bool _sending;
+    private string _error = "";
+    private bool _hasError;
+
+    private record ChatEntry(MoodType Mood, string Response, DateTime Time);
+
+    protected override void OnInitialized()
+    {
+        // TODO: Load karakter:
+        //   _character = CharacterService.GetAllCharacters().FirstOrDefault(c => c.Id == Id)
+        // TODO: Set _loading = false
+    }
+
+    private async Task SendMood()
+    {
+        // TODO: Reset error, set _sending = true
+        // TODO: Try:
+        //   var response = CharacterService.GenerateResponse(Id, _selectedMood)
+        //   _history.Add(new ChatEntry(_selectedMood, response, DateTime.Now))
+        // TODO: Catch: _hasError = true, _error = ex.Message
+        // TODO: Finally: _sending = false
+    }
+
+    private void GoBack()
+    {
+        // TODO: Navigation.NavigateTo("/characters")
+    }
+
+    private static string GetMoodEmoji(MoodType mood) => mood switch
+    {
+        // TODO: Happy → "😊", Sad → "😢", Angry → "😠", Anxious → "😰", Calm → "😌"
+        _ => "😊"
+    };
+
+    private static string GetEmoji(Character c) => c.Name switch
+    {
+        // TODO: "Kira" → "💫", "Luna" → "🌙", "Ren" → "🎧"
+        _ => "🌟"
+    };
+
+    private static string GetGradient(Character c) => c.Name switch
+    {
+        // TODO: "Kira" → "linear-gradient(135deg, #7c3aed, #a78bfa)"
+        // TODO: "Luna" → "linear-gradient(135deg, #1e40af, #3b82f6)"
+        // TODO: "Ren"  → "linear-gradient(135deg, #059669, #34d399)"
+        _ => "linear-gradient(135deg, #6366f1, #818cf8)"
+    };
+}

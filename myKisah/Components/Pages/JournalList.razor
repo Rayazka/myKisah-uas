@@ -1,0 +1,163 @@
+@page "/journals"
+@rendermode InteractiveServer
+
+@inject IJournalService JournalService
+@inject UserSession Session
+@inject NavigationManager Navigation
+
+<PageTitle>My Journals — myKisah</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">Journal @Session.CurrentUser?.Username</h1>
+            <p class="text-muted mb-0">@_journals.Count journal</p>
+        </div>
+        <div>
+            <button class="btn btn-primary" @onclick="NavigateToCreate">
+                + Tulis Journal
+            </button>
+        </div>
+    </div>
+
+    <AlertMessage Message="_error" IsError="true" Show="_hasError" />
+
+    @* Filter MoodPicker *@
+    <div class="mb-3">
+        <MoodPicker @bind-SelectedMood="_filterMood" Disabled="_loading" />
+        @if (_isFiltering)
+        {
+            <button class="btn btn-sm btn-outline-secondary ms-2" @onclick="ClearFilter">
+                ✕ Semua
+            </button>
+        }
+    </div>
+
+    @if (_loading)
+    {
+        <p class="text-muted">Loading journals...</p>
+    }
+    else if (!_filteredJournals.Any())
+    {
+        <EmptyState Message="Belum ada journal. Mulai tulis ceritamu!"
+                    ActionLabel="Tulis Journal Pertamamu"
+                    OnAction="NavigateToCreate" />
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var journal in _filteredJournals)
+            {
+                <div class="col-md-4 col-sm-6 mb-3">
+                    <div class="card journal-card" @onclick="() => NavigateToDetail(journal.Id)">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title">@journal.Title</h5>
+                                <StateBadge State="journal.State" />
+                            </div>
+                            <div class="text-muted small mb-2">
+                                @GetMoodEmoji(journal.Mood) @journal.Mood
+                            </div>
+                            <p class="card-text text-muted small">
+                                @Truncate(journal.Content, 50)
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    @journal.CreatedAt.ToString("dd MMM yyyy")
+                                </small>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        @onclick="(e) => OnDeleteClick(e, journal.Id)"
+                                        @onclick:stopPropagation="true">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @* ConfirmDialog untuk delete *@
+    <ConfirmDialog Title="Hapus Journal?"
+                   Message="Journal yang dihapus tidak bisa dikembalikan. Lanjutkan?"
+                   Show="_showConfirm"
+                   OnResult="OnConfirmDelete" />
+</div>
+
+@code {
+    private List<Journal> _journals = new();
+    private List<Journal> _filteredJournals = new();
+    private MoodType _filterMood = MoodType.Happy;
+    private bool _isFiltering;
+    private bool _loading;
+    private string _error = "";
+    private bool _hasError;
+
+    private bool _showConfirm;
+    private string _journalToDelete = "";
+
+    protected override void OnInitialized()
+    {
+        // TODO: Cek login — redirect ke / jika Session.IsLoggedIn == false
+        // TODO: Panggil LoadJournals()
+    }
+
+    private async Task LoadJournals()
+    {
+        // TODO: Reset error, set loading
+        // TODO: Panggil JournalService.GetJournalsByUser(Session.CurrentUser.Id)
+        // TODO: Simpan ke _journals
+        // TODO: Panggil ApplyFilter()
+        // TODO: Catch exception → _hasError = true, _error = ex.Message
+        // TODO: Finally → _loading = false
+    }
+
+    private void ApplyFilter()
+    {
+        // TODO: Jika _isFiltering == true, filter: _journals.Where(j => j.Mood == _filterMood).ToList()
+        // TODO: Jika _isFiltering == false, _filteredJournals = _journals
+    }
+
+    private async Task ClearFilter()
+    {
+        // TODO: Set _isFiltering = false
+        // TODO: Panggil ApplyFilter()
+    }
+
+    private void NavigateToCreate()
+    {
+        // TODO: Navigation.NavigateTo("/journals/new")
+    }
+
+    private void NavigateToDetail(string id)
+    {
+        // TODO: Navigation.NavigateTo($"/journals/{id}")
+    }
+
+    private async Task OnDeleteClick(MouseEventArgs e, string id)
+    {
+        // TODO: _journalToDelete = id
+        // TODO: _showConfirm = true
+    }
+
+    private async Task OnConfirmDelete(bool confirmed)
+    {
+        // TODO: Jika confirmed == true:
+        //   Try: JournalService.DeleteJournal(_journalToDelete), reload LoadJournals()
+        //   Catch: _hasError = true, _error = ex.Message
+        // TODO: _showConfirm = false
+    }
+
+    private static string GetMoodEmoji(MoodType mood) => mood switch
+    {
+        // TODO: Happy → "😊", Sad → "😢", Angry → "😠", Anxious → "😰", Calm → "😌"
+        _ => "😊"
+    };
+
+    private static string Truncate(string? text, int max)
+    {
+        // TODO: Implement truncate: jika text > max → text[..max] + "..."
+        return text ?? "";
+    }
+}

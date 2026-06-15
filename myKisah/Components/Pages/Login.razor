@@ -1,0 +1,102 @@
+@page "/"
+@rendermode InteractiveServer
+
+@inject IUserService UserService
+@inject UserSession Session
+@inject NavigationManager Navigation
+
+<PageTitle>myKisah — Login</PageTitle>
+
+<div class="login-container">
+    <div class="login-card">
+        <h1 class="brand">myKisah</h1>
+        <p class="tagline">Build habits, write your journey, grow together.</p>
+
+        <AlertMessage Message="_error" IsError="true" Show="_hasError" />
+
+        @* Section A: Pilih user existing *@
+        @if (_users.Any())
+        {
+            <div class="mb-4">
+                <h3>Pilih Akun</h3>
+                <div class="user-grid">
+                    @foreach (var user in _users)
+                    {
+                        <div class="user-card" @onclick="() => SelectUser(user)">
+                            <span class="user-avatar">
+                                @user.Username[..1].ToUpper()
+                            </span>
+                            <span class="user-name">@user.Username</span>
+                            <span class="user-date">
+                                Joined @user.CreatedAt.ToString("dd MMM yyyy")
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @* Section B: Register user baru *@
+        <div>
+            <h3>@(_users.Any() ? "Atau Buat Akun Baru" : "Buat Akun Baru")</h3>
+            <div class="register-row">
+                <input @bind="_newUsername"
+                       type="text"
+                       class="form-control"
+                       placeholder="Masukkan username..."
+                       disabled="@_loading"
+                       @onkeydown="HandleKeyDown" />
+                <button class="btn btn-primary"
+                        @onclick="RegisterUser"
+                        disabled="@_loading || string.IsNullOrWhiteSpace(_newUsername)">
+                    @(_loading ? "Mohon tunggu..." : "Mulai Petualangan")
+                </button>
+            </div>
+            @if (!_users.Any())
+            {
+                <p class="text-muted mt-2 small">
+                    Belum ada user terdaftar. Masukkan username untuk memulai.
+                </p>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<User> _users = new();
+    private string _newUsername = "";
+    private string _error = "";
+    private bool _hasError;
+    private bool _loading;
+
+    protected override void OnInitialized()
+    {
+        // TODO: Jika Session.IsLoggedIn → langsung redirect ke /journals
+        // TODO: Load daftar user: _users = UserService.GetAllUsers().ToList()
+        // TODO: Catch exception → _hasError = true, _error = ex.Message
+    }
+
+    private async Task SelectUser(User user)
+    {
+        // TODO: Session.Login(user)
+        // TODO: Navigation.NavigateTo("/journals")
+    }
+
+    private async Task RegisterUser()
+    {
+        // TODO: Validasi — _newUsername tidak boleh kosong (trim dulu)
+        //   Jika kosong: _hasError = true, _error = "Username tidak boleh kosong."
+        // TODO: Set loading = true, reset error
+        // TODO: Try:
+        //   var user = UserService.RegisterUser(_newUsername.Trim())
+        //   Session.Login(user)
+        //   Navigation.NavigateTo("/journals")
+        // TODO: Catch: _hasError = true, _error = ex.Message
+        // TODO: Finally: _loading = false
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        // TODO: Jika e.Key == "Enter" → panggil RegisterUser()
+    }
+}

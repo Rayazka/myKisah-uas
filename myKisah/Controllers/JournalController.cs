@@ -11,9 +11,13 @@ namespace myKisah.Controllers;
 // HTTP endpoint handler untuk Journal management.
 // Route: /api/journal
 // Endpoints:
-// - GET  /api/journal/{userId}  → Ambil semua journal milik user
-// - POST /api/journal           → Buat journal baru (State=Draft)
-// - DELETE /api/journal/{id}    → Hapus journal
+// - GET  /api/journal/{userId}   → Ambil semua journal milik user
+// - POST /api/journal            → Buat journal baru (State=Draft)
+// - POST /api/journal/{id}/submit → Submit journal (Draft → Submitted)
+// - POST /api/journal/{id}/save   → Save journal (Submitted → Saved)
+// - POST /api/journal/{id}/reject → Reject journal (Submitted → Rejected)
+// - POST /api/journal/{id}/reset  → Reset journal (Rejected → Draft)
+// - DELETE /api/journal/{id}     → Hapus journal
 
 [ApiController]
 [Route("api/journal")]
@@ -49,6 +53,34 @@ public class JournalController : ControllerBase
         // return CreatedAtAction dengan data journal yang baru dibuat
         return CreatedAtAction(nameof(GetByUser), new { userId = journal.UserId }, journal);
         
+    }
+
+    [HttpPost("{id}/submit")]
+    public IActionResult Submit(string id)
+    {
+        var journal = _service.SubmitJournal(id);
+        return Ok(journal);
+    }
+
+    [HttpPost("{id}/save")]
+    public IActionResult Save(string id)
+    {
+        var journal = _service.SaveJournal(id);
+        return Ok(journal);
+    }
+
+    [HttpPost("{id}/reject")]
+    public IActionResult Reject(string id)
+    {
+        var journal = _service.RejectJournal(id);
+        return Ok(journal);
+    }
+
+    [HttpPost("{id}/reset")]
+    public IActionResult Reset(string id)
+    {
+        var journal = _service.ResetJournal(id);
+        return Ok(journal);
     }
 
     // DELETE /api/journal/{id}

@@ -1,0 +1,76 @@
+/* ═══════════════════════════════════════════════════════
+   SHARED COMPONENT STYLES
+   Dipakai oleh: StateBadge, EmptyState, AlertMessage,
+                 MoodPicker, ConfirmDialog
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── StateBadge ─── */
+.state-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+.state-draft     { color: var(--color-state-draft);     background: var(--color-state-draft-bg); }
+.state-submitted { color: var(--color-state-submitted); background: var(--color-state-submitted-bg); }
+.state-saved     { color: var(--color-state-saved);     background: var(--color-state-saved-bg); }
+.state-rejected  { color: var(--color-state-rejected);  background: var(--color-state-rejected-bg); }
+
+/* ─── EmptyState ─── */
+.empty-state {
+    text-align: center;
+    padding: var(--space-12) var(--space-4);
+}
+
+.empty-state-icon {
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-4);
+}
+
+.empty-state-message {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-4);
+}
+
+/* ─── MoodPicker ─── */
+.mood-picker {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.mood-chip {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--color-border);
+    background: var(--color-surface);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: var(--font-size-sm);
+}
+
+.mood-chip:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.mood-chip.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.mood-chip:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.mood-emoji {
+    font-size: 1.2rem;
+}

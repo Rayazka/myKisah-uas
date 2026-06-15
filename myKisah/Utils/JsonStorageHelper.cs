@@ -144,7 +144,7 @@ public class JsonStorageHelper
             // Membuat nama property di JSON menjadi camelCase.
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
 
-            / Supaya enum disimpan sebagai string.
+            // Supaya enum disimpan sebagai string.
             // Contoh: MoodType.Happy disimpan sebagai "Happy".
             Converters = { new JsonStringEnumConverter() }
         };

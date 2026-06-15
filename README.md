@@ -96,9 +96,9 @@ Aplikasi menggunakan **Layered Architecture** dengan persistensi data berbasis f
 
 ```
 HTTP Request → Controller → Service → Repository → JSON File
-                  │              │           │
-              (validasi     (business     (data access
-               input)        logic)        only)
+                 			 │              │           │
+            			  (validasi     (business     (data access
+               				input)        logic)        only)
 ```
 
 ### Struktur Proyek

@@ -1,0 +1,33 @@
+@namespace myKisah.Components.Shared
+
+@if (Show && !string.IsNullOrEmpty(Message))
+{
+    <div class="alert @(IsError ? "alert-danger" : "alert-success") alert-dismissible fade show"
+         role="alert">
+        @if (IsError)
+        {
+            <strong>Error:</strong>
+        }
+        @Message
+        <button type="button" class="btn-close" @onclick="Dismiss"
+                aria-label="Close"></button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = "";
+
+    [Parameter]
+    public bool IsError { get; set; }
+
+    [Parameter]
+    public bool Show { get; set; }
+
+    private void Dismiss()
+    {
+        // TODO: Implementasi dismiss alert
+        // Note: Karena Show adalah parameter, tombol close hanya menyembunyikan
+        //   alert secara visual (Bootstrap CSS). Parent harus handle reset Show.
+    }
+}
