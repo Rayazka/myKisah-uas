@@ -1,11 +1,12 @@
 ﻿@inject UserSession Session
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">
+        <NavLink class="navbar-brand" href="journals">
             myKisah
-        </a>
+        </NavLink>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarNav" aria-controls="navbarNav"
@@ -16,10 +17,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="journals">My Journals</NavLink>
+                    <NavLink class="nav-link" href="journals" Match="NavLinkMatch.All">My Journals</NavLink>
                 </li>
                 <li class="nav-item">
                     <NavLink class="nav-link" href="characters">Characters</NavLink>
@@ -51,8 +49,9 @@
 </nav>
 
 @code {
-    private void Logout()
+    private async void Logout()
     {
+        await JS.InvokeVoidAsync("sessionStorage.removeItem", "myKisah.userId");
         Session.Logout();
         Navigation.NavigateTo("/", forceLoad: true);
     }

@@ -1,5 +1,5 @@
 @layout myKisah.Components.Layout.LoginLayout
-@page "/"
+@page "/register"
 @rendermode InteractiveServer
 
 @inject IUserService UserService
@@ -7,7 +7,7 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
-<PageTitle>myKisah — Masuk</PageTitle>
+<PageTitle>myKisah — Daftar</PageTitle>
 
 <div class="login-card">
     <h1 class="brand">myKisah</h1>
@@ -18,14 +18,16 @@
     <input value="@_username"
            @oninput="OnUsernameInput"
            type="text" class="login-form-control"
-           placeholder="Username" disabled="@_loading"
+           placeholder="Username baru" disabled="@_loading"
            @onkeydown="HandleKeyDown" />
 
-    <button class="login-btn" @onclick="HandleLogin">Masuk
+    <button class="login-btn" @onclick="HandleRegister"
+            disabled="@_loading">
+        @(_loading ? "Mohon tunggu..." : "Daftar")
     </button>
 
-    <button class="link-btn" @onclick="GoToRegister">
-        Belum buat akun? <strong>Buat sekarang</strong>
+    <button class="link-btn" @onclick="GoToLogin">
+        Sudah punya akun? <strong>Masuk</strong>
     </button>
 
     <footer class="login-footer">
@@ -54,12 +56,12 @@
         StateHasChanged();
     }
 
-    private void GoToRegister()
+    private void GoToLogin()
     {
-        Navigation.NavigateTo("/register");
+        Navigation.NavigateTo("/");
     }
 
-    private async Task HandleLogin()
+    private async Task HandleRegister()
     {
         var trimmed = _username.Trim();
         if (string.IsNullOrWhiteSpace(trimmed))
@@ -75,18 +77,7 @@
 
         try
         {
-            var users = UserService.GetAllUsers();
-            var user = users.FirstOrDefault(u =>
-                u.Username.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
-
-            if (user == null)
-            {
-                _loading = false;
-                _hasError = true;
-                _error = "Username tidak ditemukan.";
-                return;
-            }
-
+            var user = UserService.RegisterUser(trimmed);
             Session.Login(user);
             await JS.InvokeVoidAsync("sessionStorage.setItem", "myKisah.userId", user.Id);
             await JS.InvokeVoidAsync("location.replace", "/journals");
@@ -101,6 +92,6 @@
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter") await HandleLogin();
+        if (e.Key == "Enter") await HandleRegister();
     }
 }
