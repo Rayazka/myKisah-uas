@@ -173,3 +173,40 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* ═══════════════════════════════════════════════════════
+   State Badge — Jojo Components
+   ═══════════════════════════════════════════════════════ */
+
+.state-badge {
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.state-draft     { background: #fff3cd; color: #856404; }
+.state-submitted { background: #cce5ff; color: #004085; }
+.state-saved     { background: #d4edda; color: #155724; }
+.state-rejected  { background: #f8d7da; color: #721c24; }
+
+/* ═══════════════════════════════════════════════════════
+   Empty State — Jojo Components
+   ═══════════════════════════════════════════════════════ */
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-state-icon {
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.empty-state-message {
+    color: #64748b;
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+}
