@@ -93,43 +93,60 @@
 
     protected override void OnInitialized()
     {
-        // TODO: Load karakter:
-        //   _character = CharacterService.GetAllCharacters().FirstOrDefault(c => c.Id == Id)
-        // TODO: Set _loading = false
+        _character = CharacterService.GetAllCharacters().FirstOrDefault(c => c.Id == Id);
+        _loading = false;
     }
 
     private async Task SendMood()
     {
-        // TODO: Reset error, set _sending = true
-        // TODO: Try:
-        //   var response = CharacterService.GenerateResponse(Id, _selectedMood)
-        //   _history.Add(new ChatEntry(_selectedMood, response, DateTime.Now))
-        // TODO: Catch: _hasError = true, _error = ex.Message
-        // TODO: Finally: _sending = false
+        try
+        {
+            _hasError = false;
+            _error = "";
+            _sending = true;
+
+            var response = CharacterService.GenerateResponse(Id, _selectedMood);
+            _history.Add(new ChatEntry(_selectedMood, response, DateTime.Now));
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _sending = false;
+        }
     }
 
     private void GoBack()
     {
-        // TODO: Navigation.NavigateTo("/characters")
+        Navigation.NavigateTo("/characters");
     }
 
     private static string GetMoodEmoji(MoodType mood) => mood switch
     {
-        // TODO: Happy → "😊", Sad → "😢", Angry → "😠", Anxious → "😰", Calm → "😌"
+        MoodType.Happy => "😊",
+        MoodType.Sad => "😢",
+        MoodType.Angry => "😠",
+        MoodType.Anxious => "😰",
+        MoodType.Calm => "😌",
         _ => "😊"
     };
 
     private static string GetEmoji(Character c) => c.Name switch
     {
-        // TODO: "Kira" → "💫", "Luna" → "🌙", "Ren" → "🎧"
+        "Kira" => "💫",
+        "Luna" => "🌙",
+        "Ren" => "🎧",
         _ => "🌟"
     };
 
     private static string GetGradient(Character c) => c.Name switch
     {
-        // TODO: "Kira" → "linear-gradient(135deg, #7c3aed, #a78bfa)"
-        // TODO: "Luna" → "linear-gradient(135deg, #1e40af, #3b82f6)"
-        // TODO: "Ren"  → "linear-gradient(135deg, #059669, #34d399)"
+        "Kira" => "linear-gradient(135deg, #7c3aed, #a78bfa)",
+        "Luna" => "linear-gradient(135deg, #1e40af, #3b82f6)",
+        "Ren" => "linear-gradient(135deg, #059669, #34d399)",
         _ => "linear-gradient(135deg, #6366f1, #818cf8)"
     };
 }

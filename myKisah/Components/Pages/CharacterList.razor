@@ -55,22 +55,31 @@
 
     protected override void OnInitialized()
     {
-        // TODO: Load karakter:
-        // Try: _characters = CharacterService.GetAllCharacters().ToList()
-        // Catch: — unlikely karena data dari JSON
-        // Finally: _loading = false
+        try
+        {
+            _characters = CharacterService.GetAllCharacters().ToList();
+        }
+        catch (Exception ex)
+        {
+            // Unlikely karena data dari JSON, tapi handle untuk safety
+            System.Diagnostics.Debug.WriteLine($"Error loading characters: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     private void SelectCharacter(string id)
     {
-        // TODO: Navigation.NavigateTo($"/characters/{id}")
+        Navigation.NavigateTo($"/characters/{id}");
     }
 
     private (string Emoji, string Gradient) GetCharacterStyle(Character c) => c.Name switch
     {
-        // TODO: "Kira" → ("💫", "linear-gradient(135deg, #7c3aed, #a78bfa)")
-        // TODO: "Luna" → ("🌙", "linear-gradient(135deg, #1e40af, #3b82f6)")
-        // TODO: "Ren"  → ("🎧", "linear-gradient(135deg, #059669, #34d399)")
+        "Kira" => ("💫", "linear-gradient(135deg, #7c3aed, #a78bfa)"),
+        "Luna" => ("🌙", "linear-gradient(135deg, #1e40af, #3b82f6)"),
+        "Ren" => ("🎧", "linear-gradient(135deg, #059669, #34d399)"),
         _ => ("🌟", "linear-gradient(135deg, #6366f1, #818cf8)")
     };
 }
