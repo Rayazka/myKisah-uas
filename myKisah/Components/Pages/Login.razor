@@ -71,32 +71,78 @@
 
     protected override void OnInitialized()
     {
-        // TODO: Jika Session.IsLoggedIn → langsung redirect ke /journals
-        // TODO: Load daftar user: _users = UserService.GetAllUsers().ToList()
-        // TODO: Catch exception → _hasError = true, _error = ex.Message
+        try
+        {
+            // Jika Session.IsLoggedIn langsung redirect ke /journals
+            if (Session.IsLoggedIn)
+            {
+                Navigation.NavigateTo("/journals");
+                return;
+            }
+
+            // Load daftar user
+            _users = UserService.GetAllUsers().ToList();
+        }
+        // Catch exception 
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
     }
 
     private async Task SelectUser(User user)
     {
-        // TODO: Session.Login(user)
-        // TODO: Navigation.NavigateTo("/journals")
+        // Setelah pilih user kemudian akan redirect ke /journals
+        Session.Login(user);
+        Navigation.NavigateTo("/journals");
     }
 
     private async Task RegisterUser()
     {
-        // TODO: Validasi — _newUsername tidak boleh kosong (trim dulu)
-        //   Jika kosong: _hasError = true, _error = "Username tidak boleh kosong."
-        // TODO: Set loading = true, reset error
-        // TODO: Try:
-        //   var user = UserService.RegisterUser(_newUsername.Trim())
-        //   Session.Login(user)
-        //   Navigation.NavigateTo("/journals")
-        // TODO: Catch: _hasError = true, _error = ex.Message
-        // TODO: Finally: _loading = false
+        // Validasi input agar username tidak kosong sebelum diproses ke service
+        if (string.IsNullOrWhiteSpace(_newUsername))
+        {
+            _hasError = true;
+            _error = "Username tidak boleh kosong.";
+            return;
+        }
+
+        try
+        {
+            // Mengaktifkan loading state dan mereset pesan error sebelumnya
+            _loading = true;
+            _hasError = false;
+            _error = "";
+
+            // Registrasi user baru melalui business logic pada UserService
+            var user = UserService.RegisterUser(
+                _newUsername.Trim()
+            );
+
+            // Menyimpan user ke session dan mengarahkan ke halaman journal
+            Session.Login(user);
+            Navigation.NavigateTo("/journals");
+        }
+        catch (Exception ex)
+        {
+            // Menampilkan pesan error dari service ke komponen AlertMessage
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            // Menonaktifkan loading state setelah proses selesai
+            _loading = false;
+        }
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        // TODO: Jika e.Key == "Enter" → panggil RegisterUser()
+        // Jika e.Key == "Enter" maka panggil RegisterUser()
+        if (e.Key == "Enter")
+        {
+            await RegisterUser();
+        }
     }
 }

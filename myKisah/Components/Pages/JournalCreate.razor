@@ -76,32 +76,93 @@
 
     protected override void OnInitialized()
     {
-        // TODO: Cek login — redirect ke / jika Session.IsLoggedIn == false
-        // TODO: Baca max length dari config:
-        //   _maxLength = Configuration.GetValue<int>("JournalConfig:MaxContentLength")
+        // Cek login — redirect ke / jika Session.IsLoggedIn == false
+        if (!Session.IsLoggedIn)
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
+        // Baca max length
+        _maxLength =
+            Configuration.GetValue<int>(
+                "JournalConfig:MaxContentLength"
+            );
     }
 
     private async Task CreateJournal()
     {
-        // TODO: Reset error
-        // TODO: Validasi client-side:
-        //   - _title.Trim() kosong? → error "Judul tidak boleh kosong."
-        //   - _content.Trim() kosong? → error "Isi journal tidak boleh kosong."
-        //   - _content.Length > _maxLength? → error "Isi journal terlalu panjang (max {_maxLength} karakter)."
-        // TODO: Set _saving = true
-        // TODO: Try:
+
+        // Try:
         //   JournalService.CreateJournal(
         //       Session.CurrentUser.Id,
         //       _title.Trim(),
         //       _content.Trim(),
         //       _mood)
         //   Navigation.NavigateTo("/journals")
-        // TODO: Catch: _hasError = true, _error = ex.Message
-        // TODO: Finally: _saving = false
+        // Catch: _hasError = true, _error = ex.Message
+        // Finally: _saving = false
+
+        // Reset state error sebelum proses create journal dimulai
+        _hasError = false;
+        _error = "";
+
+        // Validasi judul journal tidak boleh kosong
+        if (string.IsNullOrWhiteSpace(_title.Trim()))
+        {
+            _hasError = true;
+            _error = "Judul tidak boleh kosong.";
+            return;
+        }
+
+        // Validasi isi journal tidak boleh kosong
+        if (string.IsNullOrWhiteSpace(_content.Trim()))
+        {
+            _hasError = true;
+            _error = "Isi journal tidak boleh kosong.";
+            return;
+        }
+
+        // Validasi jumlah karakter agar tidak melebihi batas konfigurasi
+        if (_content.Length > _maxLength)
+        {
+            _hasError = true;
+            _error = $"Isi journal terlalu panjang (max {_maxLength} karakter).";
+            return;
+        }
+
+        try
+        {
+            // Mengaktifkan saving state untuk mencegah submit berulang
+            _saving = true;
+
+            // Membuat journal baru berdasarkan user yang sedang login
+            JournalService.CreateJournal(
+                Session.CurrentUser.Id,
+                _title.Trim(),
+                _content.Trim(),
+                _mood
+            );
+
+            // Redirect ke halaman daftar journal setelah berhasil disimpan
+            Navigation.NavigateTo("/journals");
+        }
+        catch (Exception ex)
+        {
+            // Menampilkan pesan error dari service ke AlertMessage
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            // Memastikan saving state selalu dimatikan setelah proses selesai
+            _saving = false;
+        }
     }
 
     private void Cancel()
     {
-        // TODO: Navigation.NavigateTo("/journals")
+        // Redirect ke /journals
+        Navigation.NavigateTo("/journals");
     }
 }
