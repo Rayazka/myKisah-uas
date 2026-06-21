@@ -13,7 +13,7 @@ namespace myKisah.Interfaces;
 // TODO Fase 2:
 // 1. Buat kelas JsonJournalRepository
 // 2. Gunakan JsonStorageHelper untuk baca/tulis journals.json
-// 3. Implement GetByUserId dengan LINQ Where
+// 3. Implement GetByUserId
 
 public interface IJournalRepository : IRepository<Journal>
 {

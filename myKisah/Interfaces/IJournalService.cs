@@ -33,4 +33,9 @@ public interface IJournalService
     Journal CreateJournal(string userId, string title, string content, MoodType mood);
     IEnumerable<Journal> GetJournalsByUser(string userId);
     bool DeleteJournal(string id);
+
+    Journal SubmitJournal(string id);
+    Journal SaveJournal(string id);
+    Journal RejectJournal(string id);
+    Journal ResetJournal(string id);
 }

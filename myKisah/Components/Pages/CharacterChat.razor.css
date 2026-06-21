@@ -1,0 +1,101 @@
+.chat-layout {
+    display: flex;
+    gap: var(--space-6);
+    align-items: flex-start;
+}
+
+.character-panel {
+    width: 240px;
+    flex-shrink: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    position: sticky;
+    top: 5rem;
+}
+
+.character-avatar-lg {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.character-avatar-lg span {
+    font-size: 2.5rem;
+}
+
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 60vh;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+    max-height: 55vh;
+    background: var(--color-bg);
+}
+
+.chat-bubble {
+    margin-bottom: var(--space-2);
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-lg);
+    max-width: 75%;
+}
+
+.chat-bubble-user {
+    background: var(--color-info-bg);
+    margin-left: auto;
+}
+
+.chat-bubble-character {
+    background: var(--color-success-bg);
+    margin-right: auto;
+}
+
+.bubble-label {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin-bottom: 0.15rem;
+}
+
+.bubble-content {
+    font-size: var(--font-size-sm);
+}
+
+.bubble-time {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-subtle);
+    text-align: center;
+    margin-bottom: var(--space-3);
+}
+
+.chat-input {
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+}
+
+@media (max-width: 768px) {
+    .chat-layout {
+        flex-direction: column;
+    }
+    .character-panel {
+        width: 100%;
+        position: static;
+    }
+}
