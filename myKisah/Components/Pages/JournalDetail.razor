@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 
 @inject IJournalService JournalService
+@inject ICharacterService CharacterService
 @inject UserSession Session
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -96,6 +97,17 @@
                 Hapus Journal
             </button>
         </div>
+
+        @if (!string.IsNullOrEmpty(_companionMessage))
+        {
+            <div class="card mt-3 border-success">
+                <div class="card-body">
+                    <h6 class="text-success mb-2">💬 Character Companion</h6>
+                    <p class="mb-1 fst-italic">"@_companionMessage"</p>
+                    <small class="text-muted">— @_companionName, merespons mood @MoodHelper.GetEmoji(_journal!.Mood) @_journal.Mood</small>
+                </div>
+            </div>
+        }
     }
 
     <ConfirmDialog Title="Hapus Journal?"
@@ -109,13 +121,15 @@
     public string Id { get; set; } = default!;
 
     private Journal? _journal;
-    private bool _loading;
+    private bool _loading = true;
     private bool _actionLoading;
     private string _error = "";
     private bool _hasError;
     private string _success = "";
     private bool _hasSuccess;
     private bool _showConfirm;
+    private string _companionName = "";
+    private string _companionMessage = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -133,6 +147,8 @@
 
         if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
         await LoadJournal();
+        await LoadCompanion();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task LoadJournal()
@@ -145,7 +161,9 @@
             _success = "";
             _loading = true;
 
-            var journals = JournalService.GetJournalsByUser(Session.CurrentUser!.Id);
+            var userId = Session.CurrentUser?.Id;
+            if (userId == null) { Navigation.NavigateTo("/", forceLoad: true); return; }
+            var journals = JournalService.GetJournalsByUser(userId);
             _journal = journals.FirstOrDefault(j => j.Id == Id);
         }
         catch (Exception ex)
@@ -283,4 +301,25 @@
     }
 
     private void GoBack() => Navigation.NavigateTo("/journals");
+
+    private Task LoadCompanion()
+    {
+        if (_journal == null) return Task.CompletedTask;
+
+        try
+        {
+            var characters = CharacterService.GetAllCharacters().ToList();
+            if (characters.Any())
+            {
+                var companion = characters.OrderBy(_ => Guid.NewGuid()).First();
+                _companionName = companion.Name;
+                _companionMessage = CharacterService.GenerateResponse(companion.Id, _journal.Mood);
+            }
+        }
+        catch
+        {
+            _companionMessage = "";
+        }
+        return Task.CompletedTask;
+    }
 }

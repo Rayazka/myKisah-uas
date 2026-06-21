@@ -38,6 +38,25 @@ namespace myKisah.Services
             return character;
         }
 
+        public Character AddCharacter(string name, string description)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "Nama karakter tidak boleh kosong.");
+
+            if (string.IsNullOrWhiteSpace(description))
+                throw new ArgumentNullException(nameof(description), "Deskripsi karakter tidak boleh kosong.");
+
+            var character = new Character
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = name.Trim(),
+                Description = description.Trim()
+            };
+
+            _characterRepository.Add(character);
+            return character;
+        }
+
         public string GenerateResponse(string characterId, MoodType mood)
         {
             if (string.IsNullOrWhiteSpace(characterId))

@@ -21,12 +21,13 @@
            placeholder="Username" disabled="@_loading"
            @onkeydown="HandleKeyDown" />
 
-    <button class="login-btn" @onclick="HandleLogin">Masuk
+    <button class="login-btn" @onclick="HandleLogin">
+        @(_loading ? "Mohon tunggu..." : "Masuk / Daftar")
     </button>
 
-    <button class="link-btn" @onclick="GoToRegister">
-        Belum buat akun? <strong>Buat sekarang</strong>
-    </button>
+    <p class="text-muted login-hint">
+        Masukkan username. Jika belum terdaftar, akun akan otomatis dibuat.
+    </p>
 
     <footer class="login-footer">
         <span>myKisah v1.0</span>
@@ -54,11 +55,6 @@
         StateHasChanged();
     }
 
-    private void GoToRegister()
-    {
-        Navigation.NavigateTo("/register");
-    }
-
     private async Task HandleLogin()
     {
         var trimmed = _username.Trim();
@@ -81,10 +77,7 @@
 
             if (user == null)
             {
-                _loading = false;
-                _hasError = true;
-                _error = "Username tidak ditemukan.";
-                return;
+                user = UserService.RegisterUser(trimmed);
             }
 
             Session.Login(user);

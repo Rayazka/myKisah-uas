@@ -5,6 +5,8 @@
 @inject UserSession Session
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
+@inject IJSRuntime JS
+@inject IUserService UserService
 
 <PageTitle>Tulis Journal — myKisah</PageTitle>
 
@@ -74,20 +76,24 @@
     private bool _hasError;
     private int _maxLength = 5000;
 
-    protected override void OnInitialized()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Cek login — redirect ke / jika Session.IsLoggedIn == false
+        if (!firstRender) return;
+
         if (!Session.IsLoggedIn)
         {
-            Navigation.NavigateTo("/");
-            return;
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
         }
 
-        // Baca max length
-        _maxLength =
-            Configuration.GetValue<int>(
-                "JournalConfig:MaxContentLength"
-            );
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+
+        _maxLength = Configuration.GetValue<int>("JournalConfig:MaxContentLength");
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task CreateJournal()
@@ -137,15 +143,14 @@
             _saving = true;
 
             // Membuat journal baru berdasarkan user yang sedang login
-            JournalService.CreateJournal(
+            var journal = JournalService.CreateJournal(
                 Session.CurrentUser.Id,
                 _title.Trim(),
                 _content.Trim(),
                 _mood
             );
 
-            // Redirect ke halaman daftar journal setelah berhasil disimpan
-            Navigation.NavigateTo("/journals");
+            Navigation.NavigateTo($"/journals/{journal.Id}");
         }
         catch (Exception ex)
         {

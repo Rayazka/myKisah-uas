@@ -3,6 +3,9 @@
 
 @inject ICharacterService CharacterService
 @inject NavigationManager Navigation
+@inject UserSession Session
+@inject IJSRuntime JS
+@inject IUserService UserService
 
 <PageTitle>@(_character?.Name ?? "Character Chat") — myKisah</PageTitle>
 
@@ -84,17 +87,32 @@
     private Character? _character;
     private MoodType _selectedMood = MoodType.Happy;
     private List<ChatEntry> _history = new();
-    private bool _loading;
+    private bool _loading = true;
     private bool _sending;
     private string _error = "";
     private bool _hasError;
 
     private record ChatEntry(MoodType Mood, string Response, DateTime Time);
 
-    protected override void OnInitialized()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
+
+        if (!Session.IsLoggedIn)
+        {
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
+        }
+
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+
         _character = CharacterService.GetAllCharacters().FirstOrDefault(c => c.Id == Id);
         _loading = false;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SendMood()
