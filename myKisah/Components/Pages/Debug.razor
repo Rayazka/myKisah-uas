@@ -106,61 +106,101 @@
         </div>
     </div>
 
-    //──────────── CHARACTER ────────────
-    <div class="section">
-        <h2>Character Companion</h2>
+     //──────────── CHARACTER ────────────
+     <div class="section">
+         <h2>Character Companion</h2>
 
-        <div class="section-body">
-            <button class="btn btn-outline" @onclick="GetAllCharacters">Get All Characters</button>
+         <div class="section-body">
+             <button class="btn btn-outline" @onclick="GetAllCharacters">Get All Characters</button>
 
-            @if (_characters.Any())
-            {
-                <table class="data-table">
-                    <tr><th>Id</th><th>Name</th><th>Description</th></tr>
-                    @foreach (var c in _characters)
-                    {
-                        <tr>
-                            <td>@c.Id</td>
-                            <td>@c.Name</td>
-                            <td>@c.Description</td>
-                        </tr>
-                    }
-                </table>
+             @if (_characters.Any())
+             {
+                 <table class="data-table">
+                     <tr><th>Id</th><th>Name</th><th>Description</th></tr>
+                     @foreach (var c in _characters)
+                     {
+                         <tr>
+                             <td>@c.Id</td>
+                             <td>@c.Name</td>
+                             <td>@c.Description</td>
+                         </tr>
+                     }
+                 </table>
 
-                <hr />
+                 <hr />
 
-                <div class="input-row">
-                    <label>Character:</label>
-                    <select @bind="_selectedCharId">
-                        <option value="">-- Pilih --</option>
-                        @foreach (var c in _characters)
-                        {
-                            <option value="@c.Id">@c.Name</option>
-                        }
-                    </select>
+                 <div class="input-row">
+                     <label>Character:</label>
+                     <select @bind="_selectedCharId">
+                         <option value="">-- Pilih --</option>
+                         @foreach (var c in _characters)
+                         {
+                             <option value="@c.Id">@c.Name</option>
+                         }
+                     </select>
 
-                    <label>Mood:</label>
-                    <select @bind="_charMood">
-                        @foreach (var m in Enum.GetValues<MoodType>())
-                        {
-                            <option value="@m">@m</option>
-                        }
-                    </select>
+                     <label>Mood:</label>
+                     <select @bind="_charMood">
+                         @foreach (var m in Enum.GetValues<MoodType>())
+                         {
+                             <option value="@m">@m</option>
+                         }
+                     </select>
 
-                    <button class="btn btn-primary" @onclick="GetCharacterResponse">Get Response</button>
-                </div>
+                     <button class="btn btn-primary" @onclick="GetCharacterResponse">Get Response</button>
+                 </div>
 
-                @if (!string.IsNullOrEmpty(_charResponse))
-                {
-                    <div class="char-response">
-                        <strong>@_characters.First(c => c.Id == _selectedCharId).Name says:</strong>
-                        <p>"@_charResponse"</p>
-                    </div>
-                }
-            }
-        </div>
-    </div>
-</div>
+                 @if (!string.IsNullOrEmpty(_charResponse))
+                 {
+                     <div class="char-response">
+                         <strong>@_characters.First(c => c.Id == _selectedCharId).Name says:</strong>
+                         <p>"@_charResponse"</p>
+                     </div>
+                 }
+             }
+         </div>
+     </div>
+
+     //──────────── COMPONENT TESTS (Jojo) ────────────
+     <div class="section">
+         <h2>Component Tests — Jojo Shared Components</h2>
+
+         <div class="section-body">
+             <!-- StateBadge Tests -->
+             <h3>StateBadge Tests</h3>
+             <div style="margin-bottom: 2rem;">
+                 <p>Draft: <StateBadge State="JournalState.Draft" /></p>
+                 <p>Submitted: <StateBadge State="JournalState.Submitted" /></p>
+                 <p>Saved: <StateBadge State="JournalState.Saved" /></p>
+                 <p>Rejected: <StateBadge State="JournalState.Rejected" /></p>
+             </div>
+
+             <hr />
+
+             <!-- AlertMessage Tests -->
+             <h3>AlertMessage Tests</h3>
+             <div style="margin-bottom: 2rem;">
+                 <button class="btn btn-primary" @onclick="() => _showSuccessAlert = true">Show Success</button>
+                 <button class="btn btn-danger" @onclick="() => _showErrorAlert = true">Show Error</button>
+                 <AlertMessage Message="✓ Success! Operasi berhasil." IsError="false" Show="_showSuccessAlert" OnDismiss="() => _showSuccessAlert = false" />
+                 <AlertMessage Message="✗ Error! Terjadi kesalahan." IsError="true" Show="_showErrorAlert" OnDismiss="() => _showErrorAlert = false" />
+             </div>
+
+             <hr />
+
+             <!-- EmptyState Tests -->
+             <h3>EmptyState Tests</h3>
+             <div style="margin-bottom: 2rem;">
+                 <h4>Empty without action:</h4>
+                 <EmptyState Message="Belum ada journal. Mulai tulis journal pertamamu!" />
+             </div>
+             <div style="margin-bottom: 2rem;">
+                 <h4>Empty with action:</h4>
+                 <EmptyState Message="Tidak ada karakter. Buat karakter baru untuk memulai!" ActionLabel="Buat Karakter" OnAction="HandleEmptyStateAction" />
+             </div>
+         </div>
+     </div>
+ </div>
 
 @code {
     // ─── Message ───
@@ -179,11 +219,15 @@
     private string _journalFilter = "";
     private List<Journal> _journals = new();
 
-    // ─── Character State ───
-    private List<Character> _characters = new();
-    private string _selectedCharId = "";
-    private MoodType _charMood = MoodType.Happy;
-    private string _charResponse = "";
+     // ─── Character State ───
+     private List<Character> _characters = new();
+     private string _selectedCharId = "";
+     private MoodType _charMood = MoodType.Happy;
+     private string _charResponse = "";
+
+     // ─── Component Test State ───
+     private bool _showSuccessAlert = false;
+     private bool _showErrorAlert = false;
 
     // ─── Helpers ───
     private void ShowSuccess(string msg) { _message = msg; _isError = false; }
@@ -280,20 +324,27 @@
         return Task.CompletedTask;
     }
 
-    private Task GetCharacterResponse()
-    {
-        try
-        {
-            if (string.IsNullOrEmpty(_selectedCharId))
-            {
-                ShowError("Pilih karakter terlebih dahulu.");
-                return Task.CompletedTask;
-            }
+     private Task GetCharacterResponse()
+     {
+         try
+         {
+             if (string.IsNullOrEmpty(_selectedCharId))
+             {
+                 ShowError("Pilih karakter terlebih dahulu.");
+                 return Task.CompletedTask;
+             }
 
-            _charResponse = CharacterService.GenerateResponse(_selectedCharId, _charMood);
-            ShowSuccess($"Response diterima.");
-        }
-        catch (Exception ex) { ShowError($"{ex.Message}"); }
-        return Task.CompletedTask;
-    }
+             _charResponse = CharacterService.GenerateResponse(_selectedCharId, _charMood);
+             ShowSuccess($"Response diterima.");
+         }
+         catch (Exception ex) { ShowError($"{ex.Message}"); }
+         return Task.CompletedTask;
+     }
+
+     // ═══════════════════════════════════════ COMPONENT TESTS ═══════════════════════════════════
+
+     private void HandleEmptyStateAction()
+     {
+         ShowSuccess("Tombol EmptyState diklik!");
+     }
 }

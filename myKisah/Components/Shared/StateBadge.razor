@@ -1,4 +1,5 @@
 @namespace myKisah.Components.Shared
+@using myKisah.Models
 
 <span class="state-badge @GetBadgeClass()">
     @State.ToString()
@@ -10,12 +11,13 @@
 
     private string GetBadgeClass()
     {
-        // TODO: Return class CSS berdasarkan State:
-        //   JournalState.Draft     → "state-draft"
-        //   JournalState.Submitted → "state-submitted"
-        //   JournalState.Saved     → "state-saved"
-        //   JournalState.Rejected  → "state-rejected"
-        //   default → "state-draft"
-        return "state-draft";
+        return State switch
+        {
+            JournalState.Draft => "state-draft",
+            JournalState.Submitted => "state-submitted",
+            JournalState.Saved => "state-saved",
+            JournalState.Rejected => "state-rejected",
+            _ => "state-draft"
+        };
     }
 }

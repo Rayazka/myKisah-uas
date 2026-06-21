@@ -24,10 +24,13 @@
     [Parameter]
     public bool Show { get; set; }
 
-    private void Dismiss()
+    [Parameter]
+    public EventCallback OnDismiss { get; set; }
+
+    private async Task Dismiss()
     {
-        // TODO: Implementasi dismiss alert
-        // Note: Karena Show adalah parameter, tombol close hanya menyembunyikan
-        //   alert secara visual (Bootstrap CSS). Parent harus handle reset Show.
+        // Invoke parent callback jika dismiss button diklik
+        // Parent component bertanggung jawab untuk set Show=false
+        await OnDismiss.InvokeAsync();
     }
 }
