@@ -1,29 +1,46 @@
+@* Mendaftarkan namespace agar komponen bisa dipakai dengan @using myKisah.Components.Shared *@
 @namespace myKisah.Components.Shared
 
+@* Container flexbox untuk menampung semua chip mood secara horizontal *@
 <div class="mood-picker">
+    @* Looping 5 mood dari list _moods, masing-masing jadi satu chip tombol *@
     @foreach (var mood in _moods)
     {
+        @* Setiap mood dirender sebagai tombol, bukan div, agar bisa di-click & disabled *@
         <button type="button"
+                @* Jika mood ini yang sedang dipilih (SelectedMood), tambah class "active" biar biru *@
                 class="mood-chip @(SelectedMood == mood.Mood ? "active" : "")"
+                @* Jika Disabled=true, atribut disabled akan membuat tombol tidak responsif *@
                 disabled="@Disabled"
+                @* Event handler: saat tombol diklik, panggil fungsi OnSelectMood dengan mood ini *@
                 @onclick="() => OnSelectMood(mood.Mood)"
+                @* Tooltip yang muncul saat hover — menampilkan nama mood *@
                 title="@mood.Label">
+            @* Span kiri untuk emoji (😊😢😠😰😌) *@
             <span class="mood-emoji">@mood.Emoji</span>
+            @* Span kanan untuk teks label (Happy, Sad, Angry, dll) *@
             <span class="mood-label">@mood.Label</span>
         </button>
     }
 </div>
 
 @code {
+    @* Parameter: mood yang sedang aktif/dipilih. Default: Happy. *@
+    @* Untuk two-way binding, parent bisa pakai: @bind-SelectedMood="_variabel" *@
     [Parameter]
     public MoodType SelectedMood { get; set; } = MoodType.Happy;
 
+    @* Callback yang wajib ada agar @bind-SelectedMood berfungsi. *@
+    @* Nama harus persis "SelectedMoodChanged" — Blazor otomatis menghubungkan *@
     [Parameter]
     public EventCallback<MoodType> SelectedMoodChanged { get; set; }
 
+    @* Jika true, semua chip menjadi non-aktif — dipakai saat proses loading/menyimpan *@
     [Parameter]
     public bool Disabled { get; set; }
 
+    @* List data 5 mood: berisi enum MoodType, emoji string, dan label string *@
+    @* Pakai tuple agar ringkas — tidak perlu bikin class MoodItem terpisah *@
     private readonly List<(MoodType Mood, string Emoji, string Label)> _moods = new()
     {
         (MoodType.Happy,   "😊", "Happy"),
@@ -33,10 +50,16 @@
         (MoodType.Calm,    "😌", "Calm"),
     };
 
+    @* Fungsi yang dipanggil saat user mengklik salah satu chip mood *@
     private async Task OnSelectMood(MoodType mood)
     {
+        @* Guard 1: Jika komponen dalam keadaan disabled, abaikan klik *@
         if (Disabled) return;
+        @* Guard 2: Jika mood yang diklik = mood yang sudah aktif, jangan lakukan apa-apa *@
+        @* Ini membuat komponen idempoten — tidak ada re-render yang tidak perlu *@
         if (mood == SelectedMood) return;
+        @* Kirim mood baru ke parent component melalui EventCallback *@
+        @* Ini yang membuat properti di parent otomatis berubah nilainya *@
         await SelectedMoodChanged.InvokeAsync(mood);
     }
 }

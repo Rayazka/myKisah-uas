@@ -1,25 +1,37 @@
+@* Mendaftarkan namespace agar komponen bisa dipakai dengan @using myKisah.Components.Shared *@
 @namespace myKisah.Components.Shared
 
+@* Modal hanya dirender dan tampil jika parameter Show bernilai true *@
 @if (Show)
 {
+    @* Backdrop gelap di belakang modal — menutupi halaman di belakangnya *@
     <div class="modal-backdrop fade show" style="display: block;"></div>
+    @* Modal Bootstrap — fade show d-block: animasi masuk + tampil *@
+    @* tabindex="-1" agar fokus otomatis pindah ke modal *@
     <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        @* modal-dialog-centered: posisi modal di tengah layar vertikal *@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
+                @* Header: judul di kiri, tombol close (✕) di kanan *@
                 <div class="modal-header">
                     <h5 class="modal-title">@Title</h5>
+                    @* Tombol close (✕) — mengirim false ke parent (artinya batal) *@
                     <button type="button" class="btn-close"
                             @onclick="() => OnResult.InvokeAsync(false)"
                             aria-label="Close"></button>
                 </div>
+                @* Body: menampilkan pesan konfirmasi dari parameter Message *@
                 <div class="modal-body">
                     <p>@Message</p>
                 </div>
+                @* Footer: berisi dua tombol aksi — Batal (kiri) dan Ya (kanan) *@
                 <div class="modal-footer">
+                    @* Tombol Batal — outline gray, mengirim false (user membatalkan) *@
                     <button type="button" class="btn btn-outline-secondary"
                             @onclick="() => OnResult.InvokeAsync(false)">
                         Batal
                     </button>
+                    @* Tombol Ya — merah (btn-danger), mengirim true (user mengkonfirmasi) *@
                     <button type="button" class="btn btn-danger"
                             @onclick="() => OnResult.InvokeAsync(true)">
                         Ya
@@ -31,15 +43,22 @@
 }
 
 @code {
+    @* Judul yang tampil di header modal — bisa diubah sesuai konteks *@
+    @* Contoh: "Hapus Jurnal", "Hapus User", dll *@
     [Parameter]
     public string Title { get; set; } = "Konfirmasi";
 
+    @* Pesan konfirmasi yang tampil di body modal *@
+    @* Contoh: "Apakah Anda yakin ingin menghapus jurnal ini?" *@
     [Parameter]
     public string Message { get; set; } = "Apakah Anda yakin?";
 
+    @* Kontrol visibility: Show=true → modal tampil, Show=false → modal hilang *@
     [Parameter]
     public bool Show { get; set; }
 
+    @* Callback untuk mengirim hasil konfirmasi ke parent component *@
+    @* true = user klik "Ya", false = user klik "Batal" atau ✕ *@
     [Parameter]
     public EventCallback<bool> OnResult { get; set; }
 }
