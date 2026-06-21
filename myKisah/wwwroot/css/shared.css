@@ -74,3 +74,142 @@
 .mood-emoji {
     font-size: 1.2rem;
 }
+
+/* ═══════════════════════════════════════════════════════
+   LOGIN & REGISTER PAGES (Dark Theme + Glassmorphism)
+   ═══════════════════════════════════════════════════════ */
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+}
+
+.brand {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    margin-bottom: var(--space-2);
+}
+
+.tagline {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-8);
+}
+
+.login-form-control {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    text-align: center;
+    font-size: var(--font-size-lg);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+    width: 100%;
+}
+
+.login-form-control::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.login-form-control:focus {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+    color: #ffffff;
+    outline: none;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    background: var(--color-primary);
+    border: none;
+    border-radius: var(--radius-md);
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.login-btn:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+}
+
+.login-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.switch-link {
+    margin-top: var(--space-6);
+    color: rgba(255, 255, 255, 0.3);
+    font-size: var(--font-size-sm);
+}
+
+.switch-link a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+}
+
+.switch-link a:hover {
+    text-decoration: underline;
+}
+
+.link-btn {
+    margin-top: var(--space-6);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    padding: 0;
+    font-family: var(--font-family);
+}
+
+.link-btn strong {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+.link-btn:hover strong {
+    text-decoration: underline;
+}
+
+.login-footer {
+    margin-top: var(--space-8);
+    font-size: var(--font-size-xs);
+    color: rgba(255, 255, 255, 0.15);
+}
+
+/* Alert overrides for dark login pages */
+.login-card .alert {
+    text-align: left;
+    font-size: var(--font-size-sm);
+    padding: 0.6rem 1rem;
+    margin-bottom: var(--space-4);
+    border-radius: var(--radius-md);
+}
+
+.login-card .alert-danger {
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: #fca5a5;
+}
+
+.login-card .alert-success {
+    background: rgba(22, 163, 74, 0.15);
+    border: 1px solid rgba(22, 163, 74, 0.3);
+    color: #86efac;
+}

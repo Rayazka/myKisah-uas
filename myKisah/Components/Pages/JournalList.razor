@@ -4,6 +4,8 @@
 @inject IJournalService JournalService
 @inject UserSession Session
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject IUserService UserService
 
 <PageTitle>My Journals — myKisah</PageTitle>
 
@@ -20,11 +22,12 @@
         </div>
     </div>
 
-    <AlertMessage Message="_error" IsError="true" Show="_hasError" />
+    <AlertMessage Message="@_error" IsError="true" Show="@_hasError" />
 
-    @* Filter MoodPicker *@
     <div class="mb-3">
-        <MoodPicker @bind-SelectedMood="_filterMood" Disabled="_loading" />
+        <MoodPicker SelectedMood="_filterMood"
+                    SelectedMoodChanged="OnFilterMoodChanged"
+                    Disabled="_loading" />
         @if (_isFiltering)
         {
             <button class="btn btn-sm btn-outline-secondary ms-2" @onclick="ClearFilter">
@@ -56,7 +59,7 @@
                                 <StateBadge State="journal.State" />
                             </div>
                             <div class="text-muted small mb-2">
-                                @GetMoodEmoji(journal.Mood) @journal.Mood
+                                @MoodHelper.GetEmoji(journal.Mood) @journal.Mood
                             </div>
                             <p class="card-text text-muted small">
                                 @Truncate(journal.Content, 50)
@@ -78,7 +81,6 @@
         </div>
     }
 
-    @* ConfirmDialog untuk delete *@
     <ConfirmDialog Title="Hapus Journal?"
                    Message="Journal yang dihapus tidak bisa dikembalikan. Lanjutkan?"
                    Show="_showConfirm"
@@ -97,67 +99,99 @@
     private bool _showConfirm;
     private string _journalToDelete = "";
 
-    protected override void OnInitialized()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // TODO: Cek login — redirect ke / jika Session.IsLoggedIn == false
-        // TODO: Panggil LoadJournals()
+        if (!firstRender) return;
+
+        if (!Session.IsLoggedIn)
+        {
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
+        }
+
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+        await LoadJournals();
     }
 
     private async Task LoadJournals()
     {
-        // TODO: Reset error, set loading
-        // TODO: Panggil JournalService.GetJournalsByUser(Session.CurrentUser.Id)
-        // TODO: Simpan ke _journals
-        // TODO: Panggil ApplyFilter()
-        // TODO: Catch exception → _hasError = true, _error = ex.Message
-        // TODO: Finally → _loading = false
+        try
+        {
+            _hasError = false;
+            _error = "";
+            _loading = true;
+            _journals = JournalService.GetJournalsByUser(Session.CurrentUser!.Id).ToList();
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OnFilterMoodChanged(MoodType mood)
+    {
+        _filterMood = mood;
+        _isFiltering = true;
+        ApplyFilter();
     }
 
     private void ApplyFilter()
     {
-        // TODO: Jika _isFiltering == true, filter: _journals.Where(j => j.Mood == _filterMood).ToList()
-        // TODO: Jika _isFiltering == false, _filteredJournals = _journals
+        if (_isFiltering)
+            _filteredJournals = _journals.Where(j => j.Mood == _filterMood).ToList();
+        else
+            _filteredJournals = _journals.ToList();
     }
 
     private async Task ClearFilter()
     {
-        // TODO: Set _isFiltering = false
-        // TODO: Panggil ApplyFilter()
+        _isFiltering = false;
+        ApplyFilter();
     }
 
-    private void NavigateToCreate()
-    {
-        // TODO: Navigation.NavigateTo("/journals/new")
-    }
+    private void NavigateToCreate() => Navigation.NavigateTo("/journals/new");
 
-    private void NavigateToDetail(string id)
-    {
-        // TODO: Navigation.NavigateTo($"/journals/{id}")
-    }
+    private void NavigateToDetail(string id) => Navigation.NavigateTo($"/journals/{id}");
 
     private async Task OnDeleteClick(MouseEventArgs e, string id)
     {
-        // TODO: _journalToDelete = id
-        // TODO: _showConfirm = true
+        _journalToDelete = id;
+        _showConfirm = true;
     }
 
     private async Task OnConfirmDelete(bool confirmed)
     {
-        // TODO: Jika confirmed == true:
-        //   Try: JournalService.DeleteJournal(_journalToDelete), reload LoadJournals()
-        //   Catch: _hasError = true, _error = ex.Message
-        // TODO: _showConfirm = false
+        if (confirmed)
+        {
+            try
+            {
+                _hasError = false;
+                _error = "";
+                JournalService.DeleteJournal(_journalToDelete);
+                await LoadJournals();
+            }
+            catch (Exception ex)
+            {
+                _hasError = true;
+                _error = ex.Message;
+            }
+        }
+        _showConfirm = false;
     }
-
-    private static string GetMoodEmoji(MoodType mood) => mood switch
-    {
-        // TODO: Happy → "😊", Sad → "😢", Angry → "😠", Anxious → "😰", Calm → "😌"
-        _ => "😊"
-    };
 
     private static string Truncate(string? text, int max)
     {
-        // TODO: Implement truncate: jika text > max → text[..max] + "..."
-        return text ?? "";
+        if (string.IsNullOrEmpty(text)) return string.Empty;
+        return text.Length <= max ? text : text[..max] + "...";
     }
 }
