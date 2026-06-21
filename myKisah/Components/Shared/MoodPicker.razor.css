@@ -1,45 +1,38 @@
-@* Container flex: chip berjejer horizontal, otomatis wrap ke baris baru jika layar sempit *@
 .mood-picker {
     display: flex;
-    gap: 0.5rem;        @* Jarak antar chip 0.5rem *@
-    flex-wrap: wrap;     @* Jika tidak muat di satu baris, turun ke baris berikutnya *@
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
-@* Style dasar setiap chip mood — bentuk pil dengan border abu-abu *@
 .mood-chip {
-    padding: 0.5rem 1rem;         @* Ruang dalam chip: atas-bawah 0.5rem, kiri-kanan 1rem *@
-    border-radius: 20px;          @* Sudut membulat — membuat chip berbentuk pil/tablet *@
-    border: 2px solid #dee2e6;   @* Border abu-abu terang, tebal 2px *@
-    background: white;            @* Background putih saat tidak aktif *@
-    cursor: pointer;              @* Ubah kursor jadi gambar tangan saat hover *@
-    transition: all 0.2s ease;   @* Animasi halus 0.2 detik untuk semua properti yang berubah *@
-    display: flex;                @* Flexbox agar emoji & label sejajar horizontal *@
-    align-items: center;          @* Rata tengah secara vertikal *@
-    gap: 0.4rem;                  @* Jarak antara emoji dan teks label *@
-    font-size: 0.9rem;           @* Ukuran font lebih kecil dari default *@
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 2px solid #dee2e6;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
 }
 
-@* Saat mouse diarahkan ke chip, border & background berubah biru *@
-@* :not(:disabled) — efek hover hanya aktif jika chip tidak dalam keadaan disabled *@
 .mood-chip:hover:not(:disabled) {
-    border-color: #0d6efd;        @* Warna biru Bootstrap primary *@
-    background: #f0f7ff;          @* Background biru sangat muda *@
+    border-color: #0d6efd;
+    background: #f0f7ff;
 }
 
-@* Chip yang sedang aktif/dipilih — tampil biru solid (Bootstrap primary) *@
 .mood-chip.active {
-    background: #0d6efd;          @* Background biru solid *@
-    color: white;                  @* Teks jadi putih agar kontras *@
-    border-color: #0d6efd;        @* Border biru solid *@
+    background: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
 }
 
-@* Chip dalam keadaan disabled — tampil redup agar user tahu tidak bisa diklik *@
 .mood-chip:disabled {
-    opacity: 0.5;                  @* Transparan 50% — terlihat pudar *@
-    cursor: not-allowed;           @* Kursor tanda larangan/silang *@
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-@* Emoji dibuat lebih besar dari teks label agar terlihat jelas *@
 .mood-emoji {
     font-size: 1.2rem;
 }
