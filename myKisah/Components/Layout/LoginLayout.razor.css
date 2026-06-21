@@ -1,0 +1,8 @@
+.login-layout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #000000 0%, #111111 50%, #0a0a0a 100%);
+    padding: var(--space-4);
+}

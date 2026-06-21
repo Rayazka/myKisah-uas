@@ -1,0 +1,168 @@
+@page "/journals/new"
+@rendermode InteractiveServer
+
+@inject IJournalService JournalService
+@inject UserSession Session
+@inject NavigationManager Navigation
+@inject IConfiguration Configuration
+
+<PageTitle>Tulis Journal — myKisah</PageTitle>
+
+<div class="container-fluid">
+    <div class="create-container">
+        <h1 class="mb-3">Tulis Journal Baru</h1>
+
+        <AlertMessage Message="_error" IsError="true" Show="_hasError" />
+
+        <div class="card">
+            <div class="card-body">
+                @* Title *@
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Judul</label>
+                    <input @bind="_title"
+                           type="text"
+                           class="form-control"
+                           placeholder="Apa yang ingin kamu tulis hari ini?"
+                           disabled="@_saving"
+                           maxlength="100" />
+                    <small class="text-muted">@_title.Length/100 karakter</small>
+                </div>
+
+                @* Content *@
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Isi Journal</label>
+                    <textarea @bind="_content"
+                              class="form-control"
+                              rows="6"
+                              placeholder="Tulis isi journalmu di sini..."
+                              disabled="@_saving"></textarea>
+                    <small class="text-muted @(_content.Length > _maxLength ? "text-danger" : "")">
+                        @_content.Length/@_maxLength karakter
+                    </small>
+                </div>
+
+                @* Mood *@
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Mood</label>
+                    <MoodPicker @bind-SelectedMood="_mood" Disabled="_saving" />
+                </div>
+
+                @* Buttons *@
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary"
+                            @onclick="CreateJournal"
+                            disabled="@_saving">
+                        @(_saving ? "Menyimpan..." : "Simpan Journal")
+                    </button>
+                    <button class="btn btn-outline-secondary"
+                            @onclick="Cancel"
+                            disabled="@_saving">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _title = "";
+    private string _content = "";
+    private MoodType _mood = MoodType.Happy;
+    private bool _saving;
+    private string _error = "";
+    private bool _hasError;
+    private int _maxLength = 5000;
+
+    protected override void OnInitialized()
+    {
+        // Cek login — redirect ke / jika Session.IsLoggedIn == false
+        if (!Session.IsLoggedIn)
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
+        // Baca max length
+        _maxLength =
+            Configuration.GetValue<int>(
+                "JournalConfig:MaxContentLength"
+            );
+    }
+
+    private async Task CreateJournal()
+    {
+
+        // Try:
+        //   JournalService.CreateJournal(
+        //       Session.CurrentUser.Id,
+        //       _title.Trim(),
+        //       _content.Trim(),
+        //       _mood)
+        //   Navigation.NavigateTo("/journals")
+        // Catch: _hasError = true, _error = ex.Message
+        // Finally: _saving = false
+
+        // Reset state error sebelum proses create journal dimulai
+        _hasError = false;
+        _error = "";
+
+        // Validasi judul journal tidak boleh kosong
+        if (string.IsNullOrWhiteSpace(_title.Trim()))
+        {
+            _hasError = true;
+            _error = "Judul tidak boleh kosong.";
+            return;
+        }
+
+        // Validasi isi journal tidak boleh kosong
+        if (string.IsNullOrWhiteSpace(_content.Trim()))
+        {
+            _hasError = true;
+            _error = "Isi journal tidak boleh kosong.";
+            return;
+        }
+
+        // Validasi jumlah karakter agar tidak melebihi batas konfigurasi
+        if (_content.Length > _maxLength)
+        {
+            _hasError = true;
+            _error = $"Isi journal terlalu panjang (max {_maxLength} karakter).";
+            return;
+        }
+
+        try
+        {
+            // Mengaktifkan saving state untuk mencegah submit berulang
+            _saving = true;
+
+            // Membuat journal baru berdasarkan user yang sedang login
+            JournalService.CreateJournal(
+                Session.CurrentUser.Id,
+                _title.Trim(),
+                _content.Trim(),
+                _mood
+            );
+
+            // Redirect ke halaman daftar journal setelah berhasil disimpan
+            Navigation.NavigateTo("/journals");
+        }
+        catch (Exception ex)
+        {
+            // Menampilkan pesan error dari service ke AlertMessage
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            // Memastikan saving state selalu dimatikan setelah proses selesai
+            _saving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        // Redirect ke /journals
+        Navigation.NavigateTo("/journals");
+    }
+}

@@ -1,0 +1,23 @@
+@namespace myKisah.Components.Shared
+@using myKisah.Models
+
+<span class="state-badge @GetBadgeClass()">
+    @State.ToString()
+</span>
+
+@code {
+    [Parameter]
+    public JournalState State { get; set; }
+
+    private string GetBadgeClass()
+    {
+        return State switch
+        {
+            JournalState.Draft => "state-draft",
+            JournalState.Submitted => "state-submitted",
+            JournalState.Saved => "state-saved",
+            JournalState.Rejected => "state-rejected",
+            _ => "state-draft"
+        };
+    }
+}

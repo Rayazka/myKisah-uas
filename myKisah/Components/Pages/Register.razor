@@ -1,0 +1,97 @@
+@layout myKisah.Components.Layout.LoginLayout
+@page "/register"
+@rendermode InteractiveServer
+
+@inject IUserService UserService
+@inject UserSession Session
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>myKisah — Daftar</PageTitle>
+
+<div class="login-card">
+    <h1 class="brand">myKisah</h1>
+    <p class="tagline">Build habits, write your journey, grow together.</p>
+
+    <AlertMessage Message="@_error" IsError="true" Show="@_hasError" />
+
+    <input value="@_username"
+           @oninput="OnUsernameInput"
+           type="text" class="login-form-control"
+           placeholder="Username baru" disabled="@_loading"
+           @onkeydown="HandleKeyDown" />
+
+    <button class="login-btn" @onclick="HandleRegister"
+            disabled="@_loading">
+        @(_loading ? "Mohon tunggu..." : "Daftar")
+    </button>
+
+    <button class="link-btn" @onclick="GoToLogin">
+        Sudah punya akun? <strong>Masuk</strong>
+    </button>
+
+    <footer class="login-footer">
+        <span>myKisah v1.0</span>
+    </footer>
+</div>
+
+@code {
+    private string _username = "";
+    private string _error = "";
+    private bool _hasError;
+    private bool _loading;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && Session.IsLoggedIn)
+        {
+            Navigation.NavigateTo("/journals");
+        }
+        return Task.CompletedTask;
+    }
+
+    private void OnUsernameInput(ChangeEventArgs e)
+    {
+        _username = e.Value?.ToString() ?? "";
+        StateHasChanged();
+    }
+
+    private void GoToLogin()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    private async Task HandleRegister()
+    {
+        var trimmed = _username.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            _hasError = true;
+            _error = "Username tidak boleh kosong.";
+            return;
+        }
+
+        _loading = true;
+        _hasError = false;
+        _error = "";
+
+        try
+        {
+            var user = UserService.RegisterUser(trimmed);
+            Session.Login(user);
+            await JS.InvokeVoidAsync("sessionStorage.setItem", "myKisah.userId", user.Id);
+            await JS.InvokeVoidAsync("location.replace", "/journals");
+        }
+        catch (Exception ex)
+        {
+            _loading = false;
+            _hasError = true;
+            _error = ex.Message;
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await HandleRegister();
+    }
+}

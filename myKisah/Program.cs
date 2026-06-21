@@ -37,6 +37,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 
+// Session
+builder.Services.AddScoped<UserSession>();
+
 var app = builder.Build();
 
 //  Global Error Handling 

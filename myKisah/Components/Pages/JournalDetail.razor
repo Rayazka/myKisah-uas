@@ -1,0 +1,286 @@
+@page "/journals/{Id}"
+@rendermode InteractiveServer
+
+@inject IJournalService JournalService
+@inject UserSession Session
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject IUserService UserService
+
+<PageTitle>@(_journal?.Title ?? "Journal Detail") — myKisah</PageTitle>
+
+<div class="container-fluid">
+
+    @if (_loading)
+    {
+        <p class="text-muted">Loading journal...</p>
+    }
+    else if (_journal == null)
+    {
+        <AlertMessage Message="Journal tidak ditemukan." IsError="true" Show="true" />
+    }
+    else
+    {
+        <button class="btn btn-outline-secondary mb-3" @onclick="GoBack">
+            ← Kembali ke Journal
+        </button>
+
+        <AlertMessage Message="@_error" IsError="true" Show="@_hasError" />
+        <AlertMessage Message="@_success" IsError="false" Show="@_hasSuccess" />
+
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h1 class="card-title mb-0">@_journal.Title</h1>
+                    <StateBadge State="_journal.State" />
+                </div>
+
+                <div class="mb-3">
+                    <span class="badge bg-light text-dark">
+                        @MoodHelper.GetEmoji(_journal.Mood) @_journal.Mood
+                    </span>
+                </div>
+
+                <div class="journal-content mb-4">
+                    @_journal.Content
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        Dibuat: @_journal.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                    </small>
+
+                    <div>
+                        @switch (_journal.State)
+                        {
+                            case JournalState.Draft:
+                                <button class="btn btn-primary" @onclick="SubmitJournal"
+                                        disabled="@_actionLoading">
+                                    Submit
+                                </button>
+                                break;
+
+                            case JournalState.Submitted:
+                                <button class="btn btn-success me-2" @onclick="SaveJournal"
+                                        disabled="@_actionLoading">
+                                    Save
+                                </button>
+                                <button class="btn btn-warning" @onclick="RejectJournal"
+                                        disabled="@_actionLoading">
+                                    Reject
+                                </button>
+                                break;
+
+                            case JournalState.Rejected:
+                                <button class="btn btn-outline-primary" @onclick="ResetJournal"
+                                        disabled="@_actionLoading">
+                                    Reset ke Draft
+                                </button>
+                                break;
+
+                            case JournalState.Saved:
+                                <span class="text-success fw-bold">
+                                    ✓ Journal ini sudah disimpan
+                                </span>
+                                break;
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button class="btn btn-outline-danger btn-sm" @onclick="ShowDeleteConfirm">
+                Hapus Journal
+            </button>
+        </div>
+    }
+
+    <ConfirmDialog Title="Hapus Journal?"
+                   Message="Journal yang dihapus tidak bisa dikembalikan. Lanjutkan?"
+                   Show="_showConfirm"
+                   OnResult="OnConfirmDelete" />
+</div>
+
+@code {
+    [Parameter]
+    public string Id { get; set; } = default!;
+
+    private Journal? _journal;
+    private bool _loading;
+    private bool _actionLoading;
+    private string _error = "";
+    private bool _hasError;
+    private string _success = "";
+    private bool _hasSuccess;
+    private bool _showConfirm;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        if (!Session.IsLoggedIn)
+        {
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
+        }
+
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+        await LoadJournal();
+    }
+
+    private async Task LoadJournal()
+    {
+        try
+        {
+            _hasError = false;
+            _hasSuccess = false;
+            _error = "";
+            _success = "";
+            _loading = true;
+
+            var journals = JournalService.GetJournalsByUser(Session.CurrentUser!.Id);
+            _journal = journals.FirstOrDefault(j => j.Id == Id);
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task SubmitJournal()
+    {
+        try
+        {
+            _hasError = false;
+            _hasSuccess = false;
+            _error = "";
+            _success = "";
+            _actionLoading = true;
+
+            JournalService.SubmitJournal(Id);
+            _success = "Journal berhasil disubmit!";
+            await LoadJournal();
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _actionLoading = false;
+        }
+    }
+
+    private async Task SaveJournal()
+    {
+        try
+        {
+            _hasError = false;
+            _hasSuccess = false;
+            _error = "";
+            _success = "";
+            _actionLoading = true;
+
+            JournalService.SaveJournal(Id);
+            _success = "Journal berhasil disimpan!";
+            await LoadJournal();
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _actionLoading = false;
+        }
+    }
+
+    private async Task RejectJournal()
+    {
+        try
+        {
+            _hasError = false;
+            _hasSuccess = false;
+            _error = "";
+            _success = "";
+            _actionLoading = true;
+
+            JournalService.RejectJournal(Id);
+            _success = "Journal ditolak.";
+            await LoadJournal();
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _actionLoading = false;
+        }
+    }
+
+    private async Task ResetJournal()
+    {
+        try
+        {
+            _hasError = false;
+            _hasSuccess = false;
+            _error = "";
+            _success = "";
+            _actionLoading = true;
+
+            JournalService.ResetJournal(Id);
+            _success = "Journal di-reset ke Draft.";
+            await LoadJournal();
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _actionLoading = false;
+        }
+    }
+
+    private void ShowDeleteConfirm() => _showConfirm = true;
+
+    private async Task OnConfirmDelete(bool confirmed)
+    {
+        if (confirmed)
+        {
+            try
+            {
+                _hasError = false;
+                _error = "";
+                JournalService.DeleteJournal(Id);
+                Navigation.NavigateTo("/journals");
+                return;
+            }
+            catch (Exception ex)
+            {
+                _hasError = true;
+                _error = ex.Message;
+            }
+        }
+        _showConfirm = false;
+    }
+
+    private void GoBack() => Navigation.NavigateTo("/journals");
+}

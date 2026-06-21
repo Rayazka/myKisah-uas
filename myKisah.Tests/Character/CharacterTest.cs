@@ -21,12 +21,18 @@ namespace myKisah.Tests.Character
             _mockCharRepo = new Mock<ICharacterRepository>();
             _mockRespRepo = new Mock<ICharacterResponseRepository>();
 
-            // Setup data palsu. (Pastikan properti 'ResponseText' sesuai dengan model CharacterResponse Anda)
-            _mockRespRepo.Setup(repo => repo.GetAll()).Returns(new List<CharacterResponse>
-            {
-                new CharacterResponse { CharacterId = "C01", Mood = MoodType.Happy, Response = "Aku ikut senang!" },
-                new CharacterResponse { CharacterId = "C01", Mood = MoodType.Sad, Response = "Aku di sini untukmu." }
-            });
+            // Setup mock GetByMood (bukan GetAll) — service panggil GetByMood, bukan GetAll
+            _mockRespRepo.Setup(repo => repo.GetByMood("C01", MoodType.Happy))
+                .Returns(new List<CharacterResponse>
+                {
+                    new CharacterResponse { Response = "Aku ikut senang!" }
+                });
+
+            _mockRespRepo.Setup(repo => repo.GetByMood("C01", MoodType.Sad))
+                .Returns(new List<CharacterResponse>
+                {
+                    new CharacterResponse { Response = "Aku di sini untukmu." }
+                });
 
             _mockCharRepo.Setup(repo => repo.GetById("C01")).Returns(new Models.Character { Id = "C01", Name = "Gista" });
 

@@ -1,0 +1,36 @@
+@namespace myKisah.Components.Shared
+
+@if (Show && !string.IsNullOrEmpty(Message))
+{
+    <div class="alert @(IsError ? "alert-danger" : "alert-success") alert-dismissible fade show"
+         role="alert">
+        @if (IsError)
+        {
+            <strong>Error:</strong>
+        }
+        @Message
+        <button type="button" class="btn-close" @onclick="Dismiss"
+                aria-label="Close"></button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = "";
+
+    [Parameter]
+    public bool IsError { get; set; }
+
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public EventCallback OnDismiss { get; set; }
+
+    private async Task Dismiss()
+    {
+        // Invoke parent callback jika dismiss button diklik
+        // Parent component bertanggung jawab untuk set Show=false
+        await OnDismiss.InvokeAsync();
+    }
+}

@@ -89,4 +89,54 @@ public class JournalService : ServiceBase, IJournalService
         _repository.Delete(id); 
         return true; 
     }
+public Journal SubmitJournal(string id)
+{
+    // 1. Ambil data jurnal dari repository
+    var journal = _repository.GetById(id);
+    Validator.ValidateExists(journal, $"Journal dengan Id '{id}'");
+
+    // 2. Lakukan transisi state menggunakan State Machine
+    // Transisi: Draft --[Submit]--> Submitted
+    journal!.State = _stateMachine.Transition(journal.State, JournalTrigger.Submit);
+
+    // 3. Simpan perubahan ke repository
+    _repository.Update(journal);
+    return journal;
+}
+
+public Journal SaveJournal(string id)
+{
+    var journal = _repository.GetById(id);
+    Validator.ValidateExists(journal, $"Journal dengan Id '{id}'");
+
+    // Transisi: Submitted --[Save]--> Saved
+    journal!.State = _stateMachine.Transition(journal.State, JournalTrigger.Save);
+
+    _repository.Update(journal);
+    return journal;
+}
+
+public Journal RejectJournal(string id)
+{
+    var journal = _repository.GetById(id);
+    Validator.ValidateExists(journal, $"Journal dengan Id '{id}'");
+
+    // Transisi: Submitted --[Reject]--> Rejected
+    journal!.State = _stateMachine.Transition(journal.State, JournalTrigger.Reject);
+
+    _repository.Update(journal);
+    return journal;
+}
+
+public Journal ResetJournal(string id)
+{
+    var journal = _repository.GetById(id);
+    Validator.ValidateExists(journal, $"Journal dengan Id '{id}'");
+
+    // Transisi: Rejected --[Reset]--> Draft
+    journal!.State = _stateMachine.Transition(journal.State, JournalTrigger.Reset);
+
+    _repository.Update(journal);
+    return journal;
+}
 }
