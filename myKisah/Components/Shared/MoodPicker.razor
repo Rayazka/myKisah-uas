@@ -26,18 +26,17 @@
 
     private readonly List<(MoodType Mood, string Emoji, string Label)> _moods = new()
     {
-        // TODO: Isi 5 mood dengan emoji yang sesuai
-        // (MoodType.Happy,   "😊", "Happy"),
-        // (MoodType.Sad,     "😢", "Sad"),
-        // (MoodType.Angry,   "😠", "Angry"),
-        // (MoodType.Anxious, "😰", "Anxious"),
-        // (MoodType.Calm,    "😌", "Calm"),
+        (MoodType.Happy,   "😊", "Happy"),
+        (MoodType.Sad,     "😢", "Sad"),
+        (MoodType.Angry,   "😠", "Angry"),
+        (MoodType.Anxious, "😰", "Anxious"),
+        (MoodType.Calm,    "😌", "Calm"),
     };
 
     private async Task OnSelectMood(MoodType mood)
     {
-        // TODO: Jika Disabled → return (jangan proses)
-        // TODO: Jika mood == SelectedMood → return (tidak ada perubahan)
-        // TODO: Invoke SelectedMoodChanged.InvokeAsync(mood)
+        if (Disabled) return;
+        if (mood == SelectedMood) return;
+        await SelectedMoodChanged.InvokeAsync(mood);
     }
 }

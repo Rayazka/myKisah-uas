@@ -1,0 +1,38 @@
+.mood-picker {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.mood-chip {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 2px solid #dee2e6;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+}
+
+.mood-chip:hover:not(:disabled) {
+    border-color: #0d6efd;
+    background: #f0f7ff;
+}
+
+.mood-chip.active {
+    background: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+.mood-chip:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.mood-emoji {
+    font-size: 1.2rem;
+}
