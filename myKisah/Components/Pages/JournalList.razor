@@ -27,13 +27,9 @@
     <div class="mb-3">
         <MoodPicker SelectedMood="_filterMood"
                     SelectedMoodChanged="OnFilterMoodChanged"
+                    ShowAllChip="true"
+                    OnClear="ClearFilter"
                     Disabled="_loading" />
-        @if (_isFiltering)
-        {
-            <button class="btn btn-sm btn-outline-secondary ms-2" @onclick="ClearFilter">
-                ✕ Semua
-            </button>
-        }
     </div>
 
     @if (_loading)
@@ -92,7 +88,7 @@
     private List<Journal> _filteredJournals = new();
     private MoodType _filterMood = MoodType.Happy;
     private bool _isFiltering;
-    private bool _loading;
+    private bool _loading = true;
     private string _error = "";
     private bool _hasError;
 
@@ -115,6 +111,7 @@
 
         if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
         await LoadJournals();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task LoadJournals()

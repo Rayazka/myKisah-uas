@@ -13,7 +13,7 @@
 <div class="dashboard">
     <h1 class="dashboard-title">myKisah API Test Dashboard</h1>
 
-    // ──────────── OUTPUT ────────────
+     @* ──────────── OUTPUT ──────────── *@
     @if (!string.IsNullOrEmpty(_message))
     {
         <div class="output @(_isError ? "output-error" : "output-success")">
@@ -21,7 +21,7 @@
         </div>
     }
 
-    //──────────── USER ────────────    
+    @*──────────── USER ────────────*@    
     <div class="section">
         <h2>User Management</h2>
 
@@ -51,7 +51,7 @@
         </div>
     </div>
 
-    //──────────── JOURNAL ────────────
+    @*──────────── JOURNAL ────────────*@
     <div class="section">
         <h2>Journal</h2>
 
@@ -106,7 +106,7 @@
         </div>
     </div>
 
-     //──────────── CHARACTER ────────────
+     @*──────────── CHARACTER ────────────*@
      <div class="section">
          <h2>Character Companion</h2>
 
@@ -161,7 +161,7 @@
          </div>
      </div>
 
-     //──────────── COMPONENT TESTS (Jojo) ────────────
+     @*──────────── COMPONENT TESTS (Jojo) ────────────*@
      <div class="section">
          <h2>Component Tests — Jojo Shared Components</h2>
 

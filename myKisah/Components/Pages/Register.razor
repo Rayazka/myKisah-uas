@@ -11,27 +11,30 @@
 
 <div class="login-card">
     <h1 class="brand">myKisah</h1>
-    <p class="tagline">Build habits, write your journey, grow together.</p>
+    <p class="tagline">Buat akun untuk memulai perjalananmu.</p>
 
     <AlertMessage Message="@_error" IsError="true" Show="@_hasError" />
 
-    <input value="@_username"
-           @oninput="OnUsernameInput"
+    <input @bind="_username" @bind:event="oninput"
            type="text" class="login-form-control"
-           placeholder="Username baru" disabled="@_loading"
+           placeholder="Username" disabled="@_loading"
            @onkeydown="HandleKeyDown" />
 
     <button class="login-btn" @onclick="HandleRegister"
             disabled="@_loading">
-        @(_loading ? "Mohon tunggu..." : "Daftar")
+        @(_loading ? "Mendaftarkan..." : "Daftar")
     </button>
 
-    <button class="link-btn" @onclick="GoToLogin">
-        Sudah punya akun? <strong>Masuk</strong>
-    </button>
+    <p class="login-hint">
+        Sudah punya akun?
+        <a href="/" @onclick="GoToLogin" @onclick:preventDefault
+           style="color: var(--color-primary); text-decoration: underline;">
+            Masuk di sini
+        </a>
+    </p>
 
     <footer class="login-footer">
-        <span>myKisah v1.0</span>
+        myKisah v1.0
     </footer>
 </div>
 
@@ -40,21 +43,6 @@
     private string _error = "";
     private bool _hasError;
     private bool _loading;
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && Session.IsLoggedIn)
-        {
-            Navigation.NavigateTo("/journals");
-        }
-        return Task.CompletedTask;
-    }
-
-    private void OnUsernameInput(ChangeEventArgs e)
-    {
-        _username = e.Value?.ToString() ?? "";
-        StateHasChanged();
-    }
 
     private void GoToLogin()
     {

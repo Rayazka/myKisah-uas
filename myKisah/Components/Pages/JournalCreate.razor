@@ -2,9 +2,12 @@
 @rendermode InteractiveServer
 
 @inject IJournalService JournalService
+@inject ICharacterService CharacterService
 @inject UserSession Session
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
+@inject IJSRuntime JS
+@inject IUserService UserService
 
 <PageTitle>Tulis Journal — myKisah</PageTitle>
 
@@ -47,6 +50,18 @@
                     <MoodPicker @bind-SelectedMood="_mood" Disabled="_saving" />
                 </div>
 
+                @* Character *@
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Character Companion</label>
+                    <select @bind="_selectedCharacterId" class="form-select" disabled="@_saving">
+                        <option value="">-- Tanpa karakter --</option>
+                        @foreach (var c in _characters)
+                        {
+                            <option value="@c.Id">@c.Name</option>
+                        }
+                    </select>
+                </div>
+
                 @* Buttons *@
                 <div class="d-flex gap-2">
                     <button class="btn btn-primary"
@@ -73,21 +88,28 @@
     private string _error = "";
     private bool _hasError;
     private int _maxLength = 5000;
+    private List<Character> _characters = new();
+    private string _selectedCharacterId = "";
 
-    protected override void OnInitialized()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Cek login — redirect ke / jika Session.IsLoggedIn == false
+        if (!firstRender) return;
+
         if (!Session.IsLoggedIn)
         {
-            Navigation.NavigateTo("/");
-            return;
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
         }
 
-        // Baca max length
-        _maxLength =
-            Configuration.GetValue<int>(
-                "JournalConfig:MaxContentLength"
-            );
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+
+        _maxLength = Configuration.GetValue<int>("JournalConfig:MaxContentLength");
+        _characters = CharacterService.GetAllCharacters().ToList();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task CreateJournal()
@@ -115,14 +137,6 @@
             return;
         }
 
-        // Validasi isi journal tidak boleh kosong
-        if (string.IsNullOrWhiteSpace(_content.Trim()))
-        {
-            _hasError = true;
-            _error = "Isi journal tidak boleh kosong.";
-            return;
-        }
-
         // Validasi jumlah karakter agar tidak melebihi batas konfigurasi
         if (_content.Length > _maxLength)
         {
@@ -137,15 +151,15 @@
             _saving = true;
 
             // Membuat journal baru berdasarkan user yang sedang login
-            JournalService.CreateJournal(
-                Session.CurrentUser.Id,
+            var journal = JournalService.CreateJournal(
+                Session.CurrentUser!.Id,
                 _title.Trim(),
                 _content.Trim(),
-                _mood
+                _mood,
+                string.IsNullOrEmpty(_selectedCharacterId) ? null : _selectedCharacterId
             );
 
-            // Redirect ke halaman daftar journal setelah berhasil disimpan
-            Navigation.NavigateTo("/journals");
+            Navigation.NavigateTo($"/journals/{journal.Id}");
         }
         catch (Exception ex)
         {

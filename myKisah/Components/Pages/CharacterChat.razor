@@ -1,8 +1,15 @@
 @page "/characters/{Id}"
 @rendermode InteractiveServer
+@implements IDisposable
 
 @inject ICharacterService CharacterService
+@inject IJournalService JournalService
+@inject IChatSessionRepository ChatRepo
 @inject NavigationManager Navigation
+@inject UserSession Session
+@inject IJSRuntime JS
+@inject IUserService UserService
+@inject OllamaService Ollama
 
 <PageTitle>@(_character?.Name ?? "Character Chat") — myKisah</PageTitle>
 
@@ -30,47 +37,80 @@
                     </div>
                     <h4>@_character.Name</h4>
                     <p class="text-muted small">@_character.Description</p>
+                    @if (!string.IsNullOrEmpty(_character.Personality))
+                    {
+                        <span class="badge bg-light text-dark mt-1">@_character.Personality</span>
+                    }
                 </div>
             </div>
 
             @* Panel Kanan: Chat Area *@
             <div class="chat-area">
                 <AlertMessage Message="@_error" IsError="true" Show="@_hasError" />
+                <AlertMessage Message="@_success" IsError="false" Show="@_hasSuccess" />
 
                 @* Chat History *@
-                <div class="chat-messages">
-                    @if (!_history.Any())
+                <div class="chat-messages" @ref="_chatContainer">
+                    @if (!_history.Any() && string.IsNullOrEmpty(_streamingResponse))
                     {
-                        <EmptyState Message="@($"Pilih mood untuk memulai percakapan dengan {_character!.Name}")" />
+                        <EmptyState Message="@($"Mulai percakapan dengan {_character!.Name}! Ceritakan harimu.")" />
                     }
                     else
                     {
                         @foreach (var entry in _history)
                         {
-                            <div class="chat-bubble chat-bubble-user">
-                                <small class="bubble-label">Kamu — @GetMoodEmoji(entry.Mood) @entry.Mood</small>
-                                <div class="bubble-content">@GetMoodEmoji(entry.Mood) @entry.Mood</div>
-                            </div>
-                            <div class="chat-bubble chat-bubble-character">
-                                <small class="bubble-label">@_character.Name</small>
-                                <div class="bubble-content">@entry.Response</div>
+                            var isUser = entry.Role == "user";
+                            <div class="chat-bubble @(isUser ? "chat-bubble-user" : "chat-bubble-character")">
+                                <small class="bubble-label">
+                                    @(isUser ? "Kamu" : _character.Name)
+                                </small>
+                                <div class="bubble-content">@entry.Content</div>
                             </div>
                             <small class="bubble-time">@entry.Time.ToString("HH:mm")</small>
+                        }
+
+                        @if (_sending && string.IsNullOrEmpty(_streamingResponse))
+                        {
+                            <div class="chat-bubble chat-bubble-character">
+                                <small class="bubble-label">@_character.Name</small>
+                                <div class="bubble-content">
+                                    <span class="typing-indicator-dots"><span></span><span></span><span></span></span>
+                                </div>
+                            </div>
+                        }
+                        else if (!string.IsNullOrEmpty(_streamingResponse))
+                        {
+                            <div class="chat-bubble chat-bubble-character">
+                                <small class="bubble-label">@_character.Name</small>
+                                <div class="bubble-content">@_streamingResponse<span class="typing-cursor">|</span></div>
+                            </div>
                         }
                     }
                 </div>
 
                 @* Input Area *@
                 <div class="chat-input">
-                    <div class="d-flex align-items-center gap-3 flex-wrap">
-                        <MoodPicker @bind-SelectedMood="_selectedMood"
-                                    Disabled="_sending" />
-                        <button class="btn btn-primary"
-                                @onclick="SendMood"
-                                disabled="@_sending">
+                    <div class="d-flex align-items-end gap-2">
+                        <textarea @bind="_userText"
+                                  class="form-control"
+                                  rows="2"
+                                  placeholder="Tulis cerita harimu di sini..."
+                                  disabled="@_sending"
+                                  @onkeydown="HandleKeyDown"></textarea>
+                        <button class="btn btn-primary flex-shrink-0"
+                                @onclick="SendMessage"
+                                disabled="@(_sending || string.IsNullOrWhiteSpace(_userText))">
                             @(_sending ? "..." : "Kirim")
                         </button>
                     </div>
+                    @if (!_sending && !string.IsNullOrEmpty(_lastAiResponse))
+                    {
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-success" @onclick="SaveToJournal">
+                                📝 Simpan ke Journal
+                            </button>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -82,57 +122,178 @@
     public string Id { get; set; } = default!;
 
     private Character? _character;
-    private MoodType _selectedMood = MoodType.Happy;
-    private List<ChatEntry> _history = new();
-    private bool _loading;
+    private List<ChatMessageItem> _history = new();
+    private bool _loading = true;
     private bool _sending;
     private string _error = "";
     private bool _hasError;
+    private string _success = "";
+    private bool _hasSuccess;
+    private string _userText = "";
+    private string _streamingResponse = "";
+    private string _lastAiResponse = "";
+    private string _sessionId = "";
+    private ElementReference _chatContainer;
 
-    private record ChatEntry(MoodType Mood, string Response, DateTime Time);
-
-    protected override void OnInitialized()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
+
+        if (!Session.IsLoggedIn)
+        {
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
+        }
+
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+
         _character = CharacterService.GetAllCharacters().FirstOrDefault(c => c.Id == Id);
+        LoadChatHistory();
         _loading = false;
+        await InvokeAsync(StateHasChanged);
     }
 
-    private async Task SendMood()
+    private void LoadChatHistory()
     {
+        if (Session.CurrentUser == null) return;
+        var session = ChatRepo.GetLatest(Session.CurrentUser.Id, Id);
+        if (session != null)
+        {
+            _history = session.Messages;
+            _sessionId = session.Id;
+        }
+    }
+
+    private void SaveChatHistory()
+    {
+        if (Session.CurrentUser == null || _character == null) return;
+        if (!_history.Any()) return;
+
+        var session = new ChatSession
+        {
+            Id = _sessionId,
+            UserId = Session.CurrentUser.Id,
+            CharacterId = Id,
+            Messages = _history.TakeLast(50).ToList(),
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
+        };
+        ChatRepo.Save(session);
+    }
+
+    private async Task SendMessage()
+    {
+        if (_sending) return;
+        var text = _userText.Trim();
+        if (string.IsNullOrWhiteSpace(text)) return;
+
+        _userText = "";
+        _hasError = false;
+        _hasSuccess = false;
+        _error = "";
+        _success = "";
+        _sending = true;
+        _streamingResponse = "";
+        _lastAiResponse = "";
+
+        _history.Add(new ChatMessageItem { Role = "user", Content = text, Time = DateTime.Now });
+        StateHasChanged();
+        await ScrollToBottom();
+
+        try
+        {
+            var aiMood = MoodMapper.ToAiMood(_selectedMood);
+            var personality = _character?.Personality ?? _character?.Description ?? "ramah";
+            var aiHistory = _history.SkipLast(1).TakeLast(10).Select(h => new myKisah.Models.AI.ChatMessage
+            {
+                Role = h.Role,
+                Content = h.Content
+            }).ToList();
+
+            await foreach (var token in Ollama.StreamCharacterResponseAsync(
+                _character?.Name ?? "Companion",
+                aiMood,
+                personality,
+                text,
+                aiHistory))
+            {
+                _streamingResponse += token;
+                StateHasChanged();
+                await ScrollToBottom();
+            }
+
+            _history.Add(new ChatMessageItem { Role = "assistant", Content = _streamingResponse, Time = DateTime.Now });
+            _lastAiResponse = _streamingResponse;
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = $"AI offline: {ex.Message}";
+        }
+        finally
+        {
+            _streamingResponse = "";
+            _sending = false;
+            StateHasChanged();
+            await ScrollToBottom();
+            SaveChatHistory();
+        }
+    }
+
+    private async Task SaveToJournal()
+    {
+        if (string.IsNullOrEmpty(_lastAiResponse) || Session.CurrentUser == null) return;
+
         try
         {
             _hasError = false;
+            _hasSuccess = false;
             _error = "";
-            _sending = true;
 
-            var response = CharacterService.GenerateResponse(Id, _selectedMood);
-            _history.Add(new ChatEntry(_selectedMood, response, DateTime.Now));
+            var title = $"Chat dengan {_character?.Name ?? "Companion"}";
+            var content = _lastAiResponse;
+            JournalService.CreateJournal(Session.CurrentUser.Id, title, content, _selectedMood, Id);
+            _success = "Berhasil disimpan ke Journal!";
+            _lastAiResponse = "";
         }
         catch (Exception ex)
         {
             _hasError = true;
             _error = ex.Message;
         }
-        finally
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
         {
-            _sending = false;
+            await SendMessage();
         }
     }
 
-    private void GoBack()
+    private async Task ScrollToBottom()
     {
-        Navigation.NavigateTo("/characters");
+        try
+        {
+            await JS.InvokeVoidAsync("eval", "document.querySelector('.chat-messages')?.scrollTo(0, document.querySelector('.chat-messages').scrollHeight)");
+        }
+        catch { }
     }
 
-    private static string GetMoodEmoji(MoodType mood) => mood switch
+    private void GoBack() => Navigation.NavigateTo("/characters");
+
+    public void Dispose()
     {
-        MoodType.Happy => "😊",
-        MoodType.Sad => "😢",
-        MoodType.Angry => "😠",
-        MoodType.Anxious => "😰",
-        MoodType.Calm => "😌",
-        _ => "😊"
-    };
+        SaveChatHistory();
+    }
+
+    // ─── Helpers ───
+
+    private MoodType _selectedMood = MoodType.Happy;
 
     private static string GetEmoji(Character c) => c.Name switch
     {

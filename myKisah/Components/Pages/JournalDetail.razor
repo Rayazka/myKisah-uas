@@ -2,6 +2,8 @@
 @rendermode InteractiveServer
 
 @inject IJournalService JournalService
+@inject ICharacterService CharacterService
+@inject OllamaService Ollama
 @inject UserSession Session
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -30,64 +32,101 @@
 
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <h1 class="card-title mb-0">@_journal.Title</h1>
-                    <StateBadge State="_journal.State" />
-                </div>
-
-                <div class="mb-3">
-                    <span class="badge bg-light text-dark">
-                        @MoodHelper.GetEmoji(_journal.Mood) @_journal.Mood
-                    </span>
-                </div>
-
-                <div class="journal-content mb-4">
-                    @_journal.Content
-                </div>
-
-                <hr>
-
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
-                        Dibuat: @_journal.CreatedAt.ToString("dd MMM yyyy HH:mm")
-                    </small>
-
-                    <div>
-                        @switch (_journal.State)
-                        {
-                            case JournalState.Draft:
-                                <button class="btn btn-primary" @onclick="SubmitJournal"
-                                        disabled="@_actionLoading">
-                                    Submit
-                                </button>
-                                break;
-
-                            case JournalState.Submitted:
-                                <button class="btn btn-success me-2" @onclick="SaveJournal"
-                                        disabled="@_actionLoading">
-                                    Save
-                                </button>
-                                <button class="btn btn-warning" @onclick="RejectJournal"
-                                        disabled="@_actionLoading">
-                                    Reject
-                                </button>
-                                break;
-
-                            case JournalState.Rejected:
-                                <button class="btn btn-outline-primary" @onclick="ResetJournal"
-                                        disabled="@_actionLoading">
-                                    Reset ke Draft
-                                </button>
-                                break;
-
-                            case JournalState.Saved:
-                                <span class="text-success fw-bold">
-                                    ✓ Journal ini sudah disimpan
-                                </span>
-                                break;
-                        }
+                @if (_isEditing)
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Judul</label>
+                        <input @bind="_editTitle" type="text" class="form-control"
+                               disabled="@_actionLoading" maxlength="100" />
                     </div>
-                </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Isi Journal</label>
+                        <textarea @bind="_editContent" class="form-control" rows="6"
+                                  disabled="@_actionLoading"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mood</label>
+                        <MoodPicker @bind-SelectedMood="_editMood" Disabled="_actionLoading" />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" @onclick="SaveEdit"
+                                disabled="@_actionLoading">
+                            @(_actionLoading ? "Menyimpan..." : "Simpan Perubahan")
+                        </button>
+                        <button class="btn btn-outline-secondary" @onclick="CancelEdit"
+                                disabled="@_actionLoading">
+                            Batal
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h1 class="card-title mb-0">@_journal.Title</h1>
+                        <StateBadge State="_journal.State" />
+                    </div>
+
+                    <div class="mb-3">
+                        <span class="badge bg-light text-dark">
+                            @MoodHelper.GetEmoji(_journal.Mood) @_journal.Mood
+                        </span>
+                    </div>
+
+                    <div class="journal-content mb-4">
+                        @_journal.Content
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Dibuat: @_journal.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                        </small>
+
+                        <div>
+                            <button class="btn btn-outline-primary me-2" @onclick="StartEdit"
+                                    disabled="@_actionLoading">
+                                Edit
+                            </button>
+                            @switch (_journal.State)
+                            {
+                                case JournalState.Draft:
+                                    <button class="btn btn-primary" @onclick="SubmitJournal"
+                                            disabled="@_actionLoading">
+                                        Submit
+                                    </button>
+                                    break;
+
+                                case JournalState.Submitted:
+                                    <button class="btn btn-success me-2" @onclick="SaveJournal"
+                                            disabled="@_actionLoading">
+                                        Save
+                                    </button>
+                                    <button class="btn btn-warning" @onclick="RejectJournal"
+                                            disabled="@_actionLoading">
+                                        Reject
+                                    </button>
+                                    break;
+
+                                case JournalState.Rejected:
+                                    <button class="btn btn-outline-primary" @onclick="ResetJournal"
+                                            disabled="@_actionLoading">
+                                        Reset ke Draft
+                                    </button>
+                                    break;
+
+                                case JournalState.Saved:
+                                    <span class="text-success fw-bold me-3">
+                                        ✓ Journal ini sudah disimpan
+                                    </span>
+                                    break;
+                            }
+                        </div>
+                    </div>
+                }
             </div>
         </div>
 
@@ -96,6 +135,47 @@
                 Hapus Journal
             </button>
         </div>
+
+        @if (!string.IsNullOrEmpty(_companionMessage))
+        {
+            <div class="card mt-3 border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="text-success mb-0">Character Companion</h6>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn @(_useAiResponse ? "btn-success" : "btn-outline-success")"
+                                    @onclick="SwitchToAI" disabled="@_isLoadingResponse">
+                                AI
+                            </button>
+                            <button class="btn @(!_useAiResponse ? "btn-success" : "btn-outline-success")"
+                                    @onclick="SwitchToStatic" disabled="@_isLoadingResponse">
+                                Static
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (_isLoadingResponse)
+                    {
+                        <p class="text-muted mb-1">Menghasilkan respons...</p>
+                    }
+                    else
+                    {
+                        <p class="mb-1 fst-italic">"@_companionMessage"</p>
+                        <small class="text-muted">
+                            — @_companionName@(_useAiResponse ? ", berdasarkan isi jurnalmu" : $", merespons mood {MoodHelper.GetEmoji(_journal!.Mood)} {_journal.Mood}")
+                        </small>
+                    }
+                    @if (!string.IsNullOrEmpty(_journal!.CharacterId))
+                    {
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-success" @onclick="NavigateToChat">
+                                Chat dengan @_companionName
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
     }
 
     <ConfirmDialog Title="Hapus Journal?"
@@ -109,13 +189,21 @@
     public string Id { get; set; } = default!;
 
     private Journal? _journal;
-    private bool _loading;
+    private bool _loading = true;
     private bool _actionLoading;
     private string _error = "";
     private bool _hasError;
     private string _success = "";
     private bool _hasSuccess;
     private bool _showConfirm;
+    private bool _isEditing;
+    private string _editTitle = "";
+    private string _editContent = "";
+    private MoodType _editMood = MoodType.Happy;
+    private string _companionName = "";
+    private string _companionMessage = "";
+    private bool _useAiResponse = true;
+    private bool _isLoadingResponse;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -133,6 +221,11 @@
 
         if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
         await LoadJournal();
+        if (_useAiResponse)
+            await LoadAICompanion();
+        else
+            await LoadStaticCompanion();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task LoadJournal()
@@ -145,7 +238,9 @@
             _success = "";
             _loading = true;
 
-            var journals = JournalService.GetJournalsByUser(Session.CurrentUser!.Id);
+            var userId = Session.CurrentUser?.Id;
+            if (userId == null) { Navigation.NavigateTo("/", forceLoad: true); return; }
+            var journals = JournalService.GetJournalsByUser(userId);
             _journal = journals.FirstOrDefault(j => j.Id == Id);
         }
         catch (Exception ex)
@@ -283,4 +378,124 @@
     }
 
     private void GoBack() => Navigation.NavigateTo("/journals");
+
+    private void StartEdit()
+    {
+        if (_journal == null) return;
+        _editTitle = _journal.Title;
+        _editContent = _journal.Content;
+        _editMood = _journal.Mood;
+        _isEditing = true;
+    }
+
+    private async Task SaveEdit()
+    {
+        try
+        {
+            _hasError = false;
+            _success = "";
+            _error = "";
+            _actionLoading = true;
+
+            JournalService.UpdateJournal(Id, _editTitle.Trim(), _editContent.Trim(), _editMood);
+            _success = "Journal berhasil diupdate!";
+            _isEditing = false;
+            await LoadJournal();
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _actionLoading = false;
+        }
+    }
+
+    private void CancelEdit()
+    {
+        _isEditing = false;
+    }
+
+    private async Task LoadAICompanion()
+    {
+        if (_journal?.CharacterId == null) return;
+
+        _isLoadingResponse = true;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            var characters = CharacterService.GetAllCharacters().ToList();
+            var companion = characters.FirstOrDefault(c => c.Id == _journal.CharacterId);
+            if (companion == null) return;
+
+            var journalContext = $"Judul: {_journal.Title}\n" +
+                                $"Mood: {_journal.Mood}\n\n" +
+                                $"Isi jurnal:\n{_journal.Content}";
+
+            _companionName = companion.Name;
+            _companionMessage = await Ollama.GetCharacterResponseAsync(
+                companion.Name,
+                MoodMapper.ToAiMood(_journal.Mood),
+                companion.Personality,
+                journalContext
+            );
+        }
+        catch
+        {
+            _companionName = "";
+            _companionMessage = "";
+        }
+        finally
+        {
+            _isLoadingResponse = false;
+        }
+    }
+
+    private Task LoadStaticCompanion()
+    {
+        if (_journal?.CharacterId == null) return Task.CompletedTask;
+
+        try
+        {
+            var characters = CharacterService.GetAllCharacters().ToList();
+            var companion = characters.FirstOrDefault(c => c.Id == _journal.CharacterId);
+            if (companion != null)
+            {
+                _companionName = companion.Name;
+                _companionMessage = CharacterService.GenerateResponse(companion.Id, _journal.Mood);
+                return Task.CompletedTask;
+            }
+        }
+        catch
+        {
+            _companionMessage = "";
+        }
+
+        _companionName = "";
+        _companionMessage = "";
+        return Task.CompletedTask;
+    }
+
+    private async Task SwitchToAI()
+    {
+        _useAiResponse = true;
+        await LoadAICompanion();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SwitchToStatic()
+    {
+        _useAiResponse = false;
+        LoadStaticCompanion();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void NavigateToChat()
+    {
+        if (_journal?.CharacterId != null)
+            Navigation.NavigateTo($"/characters/{_journal.CharacterId}");
+    }
 }

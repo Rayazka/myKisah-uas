@@ -68,7 +68,7 @@ namespace myKisah.Tests.Character
         public void GenerateResponse_NullCharacterId_ThrowsArgumentNullException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => _service.GenerateResponse(null, MoodType.Happy));
+            Assert.Throws<ArgumentNullException>(() => _service.GenerateResponse(null!, MoodType.Happy));
         }
     }
 }

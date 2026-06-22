@@ -1,0 +1,132 @@
+@page "/characters/new"
+@rendermode InteractiveServer
+
+@inject ICharacterService CharacterService
+@inject UserSession Session
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject IUserService UserService
+
+<PageTitle>Tambah Karakter — myKisah</PageTitle>
+
+<div class="container-fluid">
+    <div class="create-container">
+        <h1 class="mb-3">Tambah Karakter Baru</h1>
+
+        <AlertMessage Message="_error" IsError="true" Show="_hasError" />
+
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nama Karakter</label>
+                    <input @bind="_name"
+                           type="text"
+                           class="form-control"
+                           placeholder="Masukkan nama karakter..."
+                           disabled="@_saving"
+                           maxlength="50" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Deskripsi</label>
+                    <textarea @bind="_description"
+                              class="form-control"
+                              rows="2"
+                              placeholder="Deskripsikan karakter..."
+                              disabled="@_saving"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Personality</label>
+                    <textarea @bind="_personality"
+                              class="form-control"
+                              rows="2"
+                              placeholder="Bagaimana kepribadiannya? (ceria, bijaksana, cool, humoris...)"
+                              disabled="@_saving"></textarea>
+                    <small class="text-muted">Personality ini akan digunakan AI untuk merespons dengan gaya yang sesuai.</small>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary"
+                            @onclick="CreateCharacter"
+                            disabled="@_saving">
+                        @(_saving ? "Menyimpan..." : "Simpan Karakter")
+                    </button>
+                    <button class="btn btn-outline-secondary"
+                            @onclick="Cancel"
+                            disabled="@_saving">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _name = "";
+    private string _description = "";
+    private string _personality = "";
+    private bool _saving;
+    private string _error = "";
+    private bool _hasError;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        if (!Session.IsLoggedIn)
+        {
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
+        }
+
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CreateCharacter()
+    {
+        _hasError = false;
+        _error = "";
+
+        if (string.IsNullOrWhiteSpace(_name))
+        {
+            _hasError = true;
+            _error = "Nama karakter tidak boleh kosong.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_description))
+        {
+            _hasError = true;
+            _error = "Deskripsi karakter tidak boleh kosong.";
+            return;
+        }
+
+        try
+        {
+            _saving = true;
+            CharacterService.AddCharacter(_name.Trim(), _description.Trim(), _personality.Trim());
+            Navigation.NavigateTo("/characters");
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/characters");
+    }
+}

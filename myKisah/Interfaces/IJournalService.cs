@@ -30,7 +30,8 @@ namespace myKisah.Interfaces;
 
 public interface IJournalService
 {
-    Journal CreateJournal(string userId, string title, string content, MoodType mood);
+    Journal CreateJournal(string userId, string title, string content, MoodType mood, string? characterId = null);
+    Journal UpdateJournal(string id, string title, string content, MoodType mood);
     IEnumerable<Journal> GetJournalsByUser(string userId);
     bool DeleteJournal(string id);
 

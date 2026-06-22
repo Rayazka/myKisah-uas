@@ -3,6 +3,9 @@
 
 @inject ICharacterService CharacterService
 @inject NavigationManager Navigation
+@inject UserSession Session
+@inject IJSRuntime JS
+@inject IUserService UserService
 
 <PageTitle>Character Companions — myKisah</PageTitle>
 
@@ -11,6 +14,12 @@
     <p class="text-muted mb-4">
         Pilih karakter companion-mu. Mereka akan merespons sesuai mood yang kamu pilih.
     </p>
+
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="NavigateToCreate">
+            + Tambah Karakter
+        </button>
+    </div>
 
     @if (_loading)
     {
@@ -51,29 +60,46 @@
 
 @code {
     private List<Character> _characters = new();
-    private bool _loading;
+    private bool _loading = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
+
+        if (!Session.IsLoggedIn)
+        {
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
+        }
+
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+
         try
         {
             _characters = CharacterService.GetAllCharacters().ToList();
         }
         catch (Exception ex)
         {
-            // Unlikely karena data dari JSON, tapi handle untuk safety
             System.Diagnostics.Debug.WriteLine($"Error loading characters: {ex.Message}");
         }
         finally
         {
             _loading = false;
         }
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private void SelectCharacter(string id)
     {
         Navigation.NavigateTo($"/characters/{id}");
     }
+
+    private void NavigateToCreate() => Navigation.NavigateTo("/characters/new");
 
     private (string Emoji, string Gradient) GetCharacterStyle(Character c) => c.Name switch
     {

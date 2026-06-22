@@ -15,21 +15,26 @@
 
     <AlertMessage Message="@_error" IsError="true" Show="@_hasError" />
 
-    <input value="@_username"
-           @oninput="OnUsernameInput"
+    <input @bind="_username" @bind:event="oninput"
            type="text" class="login-form-control"
            placeholder="Username" disabled="@_loading"
            @onkeydown="HandleKeyDown" />
 
-    <button class="login-btn" @onclick="HandleLogin">Masuk
+    <button class="login-btn" @onclick="HandleLogin"
+            disabled="@_loading">
+        @(_loading ? "Mohon tunggu..." : "Masuk")
     </button>
 
-    <button class="link-btn" @onclick="GoToRegister">
-        Belum buat akun? <strong>Buat sekarang</strong>
-    </button>
+    <p class="login-hint">
+        Belum punya akun?
+        <a href="/register" @onclick="GoToRegister" @onclick:preventDefault
+           style="color: var(--color-primary); text-decoration: underline;">
+            Daftar di sini
+        </a>
+    </p>
 
     <footer class="login-footer">
-        <span>myKisah v1.0</span>
+        myKisah v1.0
     </footer>
 </div>
 
@@ -46,12 +51,6 @@
             Navigation.NavigateTo("/journals");
         }
         return Task.CompletedTask;
-    }
-
-    private void OnUsernameInput(ChangeEventArgs e)
-    {
-        _username = e.Value?.ToString() ?? "";
-        StateHasChanged();
     }
 
     private void GoToRegister()
@@ -89,7 +88,7 @@
 
             Session.Login(user);
             await JS.InvokeVoidAsync("sessionStorage.setItem", "myKisah.userId", user.Id);
-            await JS.InvokeVoidAsync("location.replace", "/journals");
+            Navigation.NavigateTo("/journals");
         }
         catch (Exception ex)
         {

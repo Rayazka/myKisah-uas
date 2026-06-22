@@ -82,8 +82,8 @@ public class JournalServiceTests
         Assert.Equal("Judul Test", result.Title);
         // Content pada journal yang dibuat sesuai dengan input yang diberikan
         Assert.Equal(MoodType.Happy, result.Mood);
-        // State awal journal yang dibuat adalah Draft
-        Assert.Equal(JournalState.Draft, result.State);
+        // State awal journal yang dibuat adalah Saved (karena content tidak kosong)
+        Assert.Equal(JournalState.Saved, result.State);
 
         // Verifikasi bahwa repository dipanggil untuk menambahkan journal baru.
         _mockRepo.Verify(r => r.Add(It.IsAny<Journal>()), Times.Once); 
@@ -99,7 +99,7 @@ public class JournalServiceTests
             // Untuk setiap mood yang valid, pastikan tidak terjadi exception dan journal dibuat dengan mood yang benar serta state Draft.
             var result = _service.CreateJournal("user-001", "T", "C", mood);
             Assert.Equal(mood, result.Mood);
-            Assert.Equal(JournalState.Draft, result.State);
+            Assert.Equal(JournalState.Saved, result.State);
         }
     }
 
