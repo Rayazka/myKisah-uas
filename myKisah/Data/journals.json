@@ -7,6 +7,7 @@
     "mood": "Anxious",
     "state": "Draft",
     "characterId": null,
+    "aiResponse": null,
     "createdAt": "2026-05-12T03:06:09.9460764Z"
   },
   {
@@ -17,6 +18,7 @@
     "mood": "Sad",
     "state": "Draft",
     "characterId": null,
+    "aiResponse": null,
     "createdAt": "2026-05-12T08:48:36.1004426Z"
   },
   {
@@ -27,6 +29,7 @@
     "mood": "Happy",
     "state": "Draft",
     "characterId": null,
+    "aiResponse": null,
     "createdAt": "2026-05-13T07:22:01.6139068Z"
   },
   {
@@ -35,8 +38,64 @@
     "title": "testinggg",
     "content": "bosen ngawsss",
     "mood": "Sad",
-    "state": "Draft",
+    "state": "Saved",
     "characterId": "char3-senpai",
+    "aiResponse": "Gw sendirian di sini, ya... Rasanya aku tidak punya tujuan atau semangat apa-apa hari ini. Aku hanya tersenyum untuk wajah kamu sini dan membayangkan kita sedang berbicara, tapi ternyata itu hanya imajinasi. Apa yang terjadi kepadamu hari ini?",
     "createdAt": "2026-06-22T04:29:06.4568713Z"
+  },
+  {
+    "id": "0e9883c0-4bea-43ee-8baf-1a20ef6300a6",
+    "userId": "user-seed-001",
+    "title": "BM SEBLAKK",
+    "content": "pengen seblak azkaa tapi tutup jam 7 coooiiii",
+    "mood": "Sad",
+    "state": "Saved",
+    "characterId": "ad98d2f3-a630-4bd3-8f83-3f703fb93969",
+    "aiResponse": "Hahaha, aku paham banget! Seblak Azza itu nggak bisa disangkal, kan? Tapi aku juga paham betapa kesulitannya mencari makanan favoritmu saat ini. Mau nggak coba cari solusi sama aku, bos? Perlukah kamu mencoba memesan seblak dari Azza melalui aplikasi pesan atau menghubungi langsung mereka? Mungkin bisa menemukan jadwal siang hari buat kamu order.",
+    "createdAt": "2026-06-22T04:45:12.5732556Z"
+  },
+  {
+    "id": "c7c9690b-8644-48aa-aab2-ed99b8b4d62a",
+    "userId": "user-seed-001",
+    "title": "dsfdsfs",
+    "content": "ddfs",
+    "mood": "Sad",
+    "state": "Saved",
+    "characterId": "char1-kdrama",
+    "aiResponse": "Aku bisa melihat bahwa kamu sedang melewati masa yang sulit. Ddsf, itu tidak ada artinya, tapi aku tahu bahwa kamu sedang mengalami kesulitan dan kecewa.\n\nAku ingin kamu tahu bahwa aku di sini untuk mendukungmu. Aku tahu betapa sakitnya merasa sendu dan sedih, tapi aku juga tahu bahwa kamu kuat dan bisa melalui ini. Apa yang terjadi hari ini? Aku ingin tahu apa yang membuatmu merasa seperti ini.",
+    "createdAt": "2026-06-22T05:21:26.3545025Z"
+  },
+  {
+    "id": "b9601cdb-225a-45f1-ab26-e4d049a0e30a",
+    "userId": "user-seed-001",
+    "title": "lift terlama",
+    "content": "nunggu lift lamaaaa bangettt padahal nunggu 1 lantai iniiiiiiiiiiiiiii",
+    "mood": "Angry",
+    "state": "Saved",
+    "characterId": "char3-senpai",
+    "aiResponse": "Aku bisa merasakan kesedihan dan frustrasi yang kamu rasakan saat menunggu lift yang terlambat. Nampaknya kamu sudah sangat sabar, tapi kemudian tetap saja ketinggalan, apalagi karena hanya nanti 1 lantai aja.\n\nAku tahu bagaimana rasanya menunggu sesuatu yang tidak bisa diprediksi dan pasti akan membuat kamu merasa kesal. Mungkin saat ini kamu ingin keluar dari tempat itu, tapi harus menunggu lift yang terlambat lagi? \n\nApa apa yang kamu lakukan sementara menunggu?",
+    "createdAt": "2026-06-22T05:46:08.4149229Z"
+  },
+  {
+    "id": "3ace1ca8-d150-42e2-b255-a9b73f2deab3",
+    "userId": "user-seed-001",
+    "title": "LAPERRRRRRRRRRRRRR",
+    "content": "gw puasa sih ekwekwkewkekw\n\nAllhamdulillah bisa puasa",
+    "mood": "Calm",
+    "state": "Saved",
+    "characterId": "char3-senpai",
+    "aiResponse": "Haha, wah itu gak mudah banget puasanya! Sepertinya gw bisa menyelesaikan pengerjaan atau kegiatan yang sulit sebelumnya. Kamu harus bangga dengar bisa menyelesaikannya dengan lancar. Puasa tidak hanya tentang tidak makan, tapi juga tentang kesabaran dan disiplin diri. Kamu pasti sudah sangat bersemangat untuk melanjutkan hari ini! Apakah kamu merencanakan apa-apa khusus hari ini?",
+    "createdAt": "2026-06-22T05:58:27.6917144Z"
+  },
+  {
+    "id": "7bd5ab08-8d0f-4300-b32c-bf604f27efd8",
+    "userId": "user-seed-001",
+    "title": "testttttttt",
+    "content": "testtt",
+    "mood": "Sad",
+    "state": "Saved",
+    "characterId": "char1-kdrama",
+    "aiResponse": "Kamu terlihat sedang menghadapi situasi yang cukup sulit dan tidak ada kata untuk menggambarkannya. Nggak apa-apa, aku sini untuk dengar. Aku tahu bagaimana rasanya ketika kita merasa sendu dan sedih. Tapi aku ingin kamu tahu bahwa kamu bukan sendirian. Banyak orang yang pernah melewati situasi yang sama dan berhasil keluar dari dalamnya. Kamu bisa melakukannya juga. Aku sini untuk mendengar ceritamu tanpa menghakimi, jadi aku mau dengar lebih lanjut tentang apa yang terjadi padamu hari ini.",
+    "createdAt": "2026-06-22T06:09:26.0824526Z"
   }
 ]

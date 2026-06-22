@@ -31,7 +31,7 @@ namespace myKisah.Interfaces;
 public interface IJournalService
 {
     Journal CreateJournal(string userId, string title, string content, MoodType mood, string? characterId = null);
-    Journal UpdateJournal(string id, string title, string content, MoodType mood);
+    Journal UpdateJournal(string id, string title, string content, MoodType mood, string? characterId = null);
     IEnumerable<Journal> GetJournalsByUser(string userId);
     bool DeleteJournal(string id);
 
@@ -39,4 +39,6 @@ public interface IJournalService
     Journal SaveJournal(string id);
     Journal RejectJournal(string id);
     Journal ResetJournal(string id);
+    void SetAiResponse(string id, string aiResponse);
+    void PublishJournal(string id);
 }
