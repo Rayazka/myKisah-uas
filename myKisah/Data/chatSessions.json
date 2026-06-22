@@ -60,9 +60,21 @@
         "content": "Hahahaha, lo! Ini seperti pertanyaan standar ya? Aku siap mendengarkan cerita apapun lo. Lalu apa kabar lo?",
         "mood": "Happy",
         "time": "2026-06-22T10:12:32.7555295+07:00"
+      },
+      {
+        "role": "user",
+        "content": "halo kira",
+        "mood": "Happy",
+        "time": "2026-06-22T12:04:12.13055+07:00"
+      },
+      {
+        "role": "assistant",
+        "content": "Halo sendiri dulu! Apa yang terjadi sejak kita last talk? Atau lo mau ceritakan sesuatu yang baru?",
+        "mood": "Happy",
+        "time": "2026-06-22T12:05:12.6201535+07:00"
       }
     ],
-    "createdAt": "2026-06-22T10:12:48.0159772+07:00",
-    "updatedAt": "2026-06-22T10:12:48.015982+07:00"
+    "createdAt": "2026-06-22T12:30:47.3814922+07:00",
+    "updatedAt": "2026-06-22T12:30:47.3815529+07:00"
   }
 ]

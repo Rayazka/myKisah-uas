@@ -38,9 +38,7 @@ public class JournalService : ServiceBase, IJournalService
     public Journal CreateJournal(string userId, string title, string content, MoodType mood, string? characterId = null)
     {
         // Input tidak boleh kosong
-        Validator. ValidateNotEmpty(userId, "UserId");
-        Validator.ValidateNotEmpty(title, "Title");
-        Validator.ValidateNotEmpty(content, "Content");
+        Validator.ValidateNotEmpty(userId, "UserId");
     
         // Mood harus valid (sesuai enum)
         Validator.ValidateInEnum(mood, "Mood");
@@ -74,7 +72,7 @@ public class JournalService : ServiceBase, IJournalService
         return journal;
     }
 
-    public Journal UpdateJournal(string id, string title, string content, MoodType mood)
+    public Journal UpdateJournal(string id, string title, string content, MoodType mood, string? characterId = null)
     {
         var journal = _repository.GetById(id);
         Validator.ValidateExists(journal, $"Journal dengan Id '{id}'");
@@ -90,10 +88,29 @@ public class JournalService : ServiceBase, IJournalService
         journal!.Title = title;
         journal.Content = content;
         journal.Mood = mood;
+        if (characterId != null)
+            journal.CharacterId = characterId;
 
         _repository.Update(journal);
         return journal;
     }
+
+public void SetAiResponse(string id, string aiResponse)
+{
+    var journal = _repository.GetById(id);
+    Validator.ValidateExists(journal, $"Journal dengan Id '{id}'");
+    journal!.AiResponse = aiResponse;
+    _repository.Update(journal);
+}
+
+public void PublishJournal(string id)
+{
+    var journal = _repository.GetById(id);
+    Validator.ValidateExists(journal, $"Journal dengan Id '{id}'");
+    journal!.State = _stateMachine.Transition(journal.State, JournalTrigger.Submit);
+    journal.State = _stateMachine.Transition(journal.State, JournalTrigger.Save);
+    _repository.Update(journal);
+}
 
     // Untuk mendapatkan semua journal milik user tertentu, panggil repository dengan filter UserId
     public IEnumerable<Journal> GetJournalsByUser(string userId)

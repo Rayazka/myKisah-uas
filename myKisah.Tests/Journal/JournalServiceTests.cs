@@ -113,30 +113,27 @@ public class JournalServiceTests
         Assert.Contains("UserId", ex.Message);
     }
 
-    //** CREATE JOURNAL — TITLE/CONTENT VALIDATION
+    //** CREATE JOURNAL — TITLE/CONTENT VALIDATION (Allows empty for auto-draft)
     [Fact]
-    public void CreateJournal_EmptyTitle_ThrowsArgumentException()
+    public void CreateJournal_EmptyTitle_ReturnsDraftJournal()
     {
-        // Menguji bahwa jika title kosong, maka CreateJournal akan melempar ArgumentException dengan pesan yang menyebutkan "Title".
-        var ex = Assert.Throws<ArgumentException>(() =>
-            _service.CreateJournal("user-001", "", "Konten", MoodType.Happy));
-        Assert.Contains("Title", ex.Message);
+        var result = _service.CreateJournal("user-001", "", "Konten", MoodType.Happy);
+        Assert.NotNull(result);
+        Assert.Equal(JournalState.Saved, result.State);
     }
     [Fact]
-    public void CreateJournal_EmptyContent_ThrowsArgumentException()
+    public void CreateJournal_EmptyContent_ReturnsDraftJournal()
     {
-        // Menguji bahwa jika content kosong, maka CreateJournal akan melempar ArgumentException dengan pesan yang menyebutkan "Content".
-        var ex = Assert.Throws<ArgumentException>(() =>
-            _service.CreateJournal("user-001", "Judul", "", MoodType.Happy));
-        Assert.Contains("Content", ex.Message);
+        var result = _service.CreateJournal("user-001", "Judul", "", MoodType.Happy);
+        Assert.NotNull(result);
+        Assert.Equal(JournalState.Draft, result.State);
     }
     [Fact]
-    public void CreateJournal_WhitespaceTitle_ThrowsArgumentException()
+    public void CreateJournal_WhitespaceTitle_ReturnsDraftJournal()
     {
-        // Menguji bahwa jika title hanya berisi whitespace, maka CreateJournal akan melempar ArgumentException dengan pesan yang menyebutkan "Title".
-        var ex = Assert.Throws<ArgumentException>(() =>
-            _service.CreateJournal("user-001", "   ", "Konten", MoodType.Happy));
-        Assert.Contains("Title", ex.Message);
+        var result = _service.CreateJournal("user-001", "   ", "Konten", MoodType.Happy);
+        Assert.NotNull(result);
+        Assert.Equal(JournalState.Saved, result.State);
     }
 
     //** CREATE JOURNAL — MOOD VALIDATION

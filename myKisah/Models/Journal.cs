@@ -26,5 +26,6 @@ public class Journal
     public MoodType Mood { get; set; }
     public JournalState State { get; set; } = JournalState.Draft;
     public string? CharacterId { get; set; }
+    public string? AiResponse { get; set; }
     public DateTime CreatedAt { get; set; }
 }
