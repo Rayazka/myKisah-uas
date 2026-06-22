@@ -7,24 +7,33 @@
 /* ─── StateBadge ─── */
 .state-badge {
     display: inline-block;
-    padding: 0.15rem 0.5rem;
+    padding: 0.25rem 0.6rem;
     border-radius: var(--radius-full);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-.state-draft     { color: var(--color-state-draft);     background: var(--color-state-draft-bg); }
-.state-submitted { color: var(--color-state-submitted); background: var(--color-state-submitted-bg); }
-.state-saved     { color: var(--color-state-saved);     background: var(--color-state-saved-bg); }
-.state-rejected  { color: var(--color-state-rejected);  background: var(--color-state-rejected-bg); }
+.state-draft     { color: #d97706; background: rgba(217, 119, 6, 0.1); border: 1px solid rgba(217, 119, 6, 0.15); }
+.state-submitted { color: #2563eb; background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.15); }
+.state-saved     { color: #16a34a; background: rgba(22, 163, 74, 0.1); border: 1px solid rgba(22, 163, 74, 0.15); }
+.state-rejected  { color: #dc2626; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.15); }
 
 /* ─── EmptyState ─── */
 .empty-state {
     text-align: center;
     padding: var(--space-12) var(--space-4);
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    margin: var(--space-4) 0;
 }
 
 .empty-state-icon {
+    font-size: 3rem;
     color: var(--color-text-subtle);
     margin-bottom: var(--space-4);
 }
@@ -32,7 +41,8 @@
 .empty-state-message {
     color: var(--color-text-muted);
     font-size: var(--font-size-lg);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-6);
+    font-weight: var(--font-weight-medium);
 }
 
 /* ─── MoodPicker ─── */
@@ -40,30 +50,71 @@
     display: flex;
     gap: var(--space-2);
     flex-wrap: wrap;
+    padding: 2px;
 }
 
 .mood-chip {
     padding: 0.5rem 1rem;
     border-radius: var(--radius-full);
-    border: 2px solid var(--color-border);
+    border: 1px solid var(--color-border);
     background: var(--color-surface);
+    color: var(--color-text-muted);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     align-items: center;
     gap: 0.4rem;
     font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    box-shadow: var(--shadow-sm);
 }
 
 .mood-chip:hover:not(:disabled) {
-    border-color: var(--color-primary);
-    background: var(--color-primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-color: var(--color-primary-dark);
+    color: var(--color-text);
 }
 
+/* Specific Active Glowing Styles for each Mood */
 .mood-chip.active {
-    background: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
+    color: #ffffff !important;
+    transform: translateY(-2px) scale(1.03);
+}
+
+/* Happy - Gold/Yellow */
+.mood-chip.mood-chip-happy.active {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #f59e0b;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+/* Sad - Soft Blue */
+.mood-chip.mood-chip-sad.active {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    border-color: #3b82f6;
+    box-shadow: 0 4px 15px rgba(59, 82, 246, 0.4);
+}
+
+/* Angry - Crimson Red */
+.mood-chip.mood-chip-angry.active {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    border-color: #ef4444;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+/* Anxious - Purple/Lavender */
+.mood-chip.mood-chip-anxious.active {
+    background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+    border-color: #a855f7;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+}
+
+/* Calm - Teal/Emerald */
+.mood-chip.mood-chip-calm.active {
+    background: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%);
+    border-color: #0d9488;
+    box-shadow: 0 4px 15px rgba(13, 148, 136, 0.4);
 }
 
 .mood-chip:disabled {
@@ -100,31 +151,32 @@
 }
 
 .tagline {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.6);
     font-size: var(--font-size-sm);
     margin-bottom: var(--space-8);
 }
 
 .login-form-control {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: #ffffff;
     text-align: center;
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-base);
     padding: 0.75rem 1rem;
     border-radius: var(--radius-md);
     margin-bottom: var(--space-4);
     width: 100%;
+    transition: all 0.2s ease;
 }
 
 .login-form-control::placeholder {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.35);
 }
 
 .login-form-control:focus {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
     color: #ffffff;
     outline: none;
 }
@@ -134,16 +186,19 @@
     padding: 0.75rem;
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
-    background: var(--color-primary);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     border: none;
     border-radius: var(--radius-md);
     color: #ffffff;
     cursor: pointer;
-    transition: background 0.2s;
+    box-shadow: 0 4px 14px 0 rgba(5, 150, 105, 0.3);
+    transition: all 0.2s ease-in-out;
 }
 
 .login-btn:hover:not(:disabled) {
-    background: var(--color-primary-dark);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px 0 rgba(4, 120, 87, 0.4);
 }
 
 .login-btn:disabled {
@@ -153,50 +208,14 @@
 
 .login-hint {
     margin-top: var(--space-4);
-    color: rgba(255, 255, 255, 0.3);
-    font-size: var(--font-size-sm);
-}
-
-.switch-link {
-    margin-top: var(--space-6);
-    color: rgba(255, 255, 255, 0.3);
-    font-size: var(--font-size-sm);
-}
-
-.switch-link a {
-    color: var(--color-primary);
-    text-decoration: none;
-    font-weight: var(--font-weight-medium);
-}
-
-.switch-link a:hover {
-    text-decoration: underline;
-}
-
-.link-btn {
-    margin-top: var(--space-6);
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.3);
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-    padding: 0;
-    font-family: var(--font-family);
-}
-
-.link-btn strong {
-    color: var(--color-primary);
-    font-weight: var(--font-weight-medium);
-}
-
-.link-btn:hover strong {
-    text-decoration: underline;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: var(--font-size-xs);
 }
 
 .login-footer {
     margin-top: var(--space-8);
     font-size: var(--font-size-xs);
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.2);
 }
 
 /* Alert overrides for dark login pages */
@@ -214,8 +233,15 @@
     color: #fca5a5;
 }
 
-.login-card .alert-success {
-    background: rgba(22, 163, 74, 0.15);
-    border: 1px solid rgba(22, 163, 74, 0.3);
-    color: #86efac;
+/* Modal / ConfirmDialog Glassmorphism */
+.modal-backdrop {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background-color: rgba(15, 23, 42, 0.5) !important;
+}
+
+.modal-content {
+    border-radius: var(--radius-lg) !important;
+    border: 1px solid var(--color-border-light) !important;
+    box-shadow: var(--shadow-lg) !important;
 }

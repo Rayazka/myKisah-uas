@@ -1,11 +1,7 @@
-﻿@inject UserSession Session
-@inject NavigationManager Navigation
-@inject IJSRuntime JS
-
-<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+﻿<nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container-fluid">
-        <NavLink class="navbar-brand" href="">
-            <span class="brand-icon">🌱</span> myKisah
+        <NavLink class="navbar-brand" href="journals">
+            myKisah
         </NavLink>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -17,9 +13,6 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink>
-                </li>
-                <li class="nav-item">
                     <NavLink class="nav-link" href="journals">My Journals</NavLink>
                 </li>
                 <li class="nav-item">
@@ -27,35 +20,11 @@
                 </li>
             </ul>
 
-            @if (Session.IsLoggedIn && Session.CurrentUser != null)
-            {
-                <div class="dropdown">
-                    <button class="btn btn-outline-light dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                        Hi, @Session.CurrentUser.Username
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><span class="dropdown-item-text text-muted small">
-                            Joined @Session.CurrentUser.CreatedAt.ToString("dd MMM yyyy")
-                        </span></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><button class="dropdown-item" @onclick="Logout">Logout</button></li>
-                    </ul>
-                </div>
-            }
-            else
-            {
-                <span class="navbar-text text-muted">Not logged in</span>
-            }
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="settings">Settings</NavLink>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
-
-@code {
-    private async void Logout()
-    {
-        await JS.InvokeVoidAsync("sessionStorage.removeItem", "myKisah.userId");
-        Session.Logout();
-        Navigation.NavigateTo("/", forceLoad: true);
-    }
-}

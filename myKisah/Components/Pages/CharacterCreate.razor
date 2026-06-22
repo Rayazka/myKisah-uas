@@ -27,13 +27,23 @@
                            maxlength="50" />
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-3">
                     <label class="form-label fw-bold">Deskripsi</label>
                     <textarea @bind="_description"
                               class="form-control"
-                              rows="3"
+                              rows="2"
                               placeholder="Deskripsikan karakter..."
                               disabled="@_saving"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Personality</label>
+                    <textarea @bind="_personality"
+                              class="form-control"
+                              rows="2"
+                              placeholder="Bagaimana kepribadiannya? (ceria, bijaksana, cool, humoris...)"
+                              disabled="@_saving"></textarea>
+                    <small class="text-muted">Personality ini akan digunakan AI untuk merespons dengan gaya yang sesuai.</small>
                 </div>
 
                 <div class="d-flex gap-2">
@@ -56,6 +66,7 @@
 @code {
     private string _name = "";
     private string _description = "";
+    private string _personality = "";
     private bool _saving;
     private string _error = "";
     private bool _hasError;
@@ -100,7 +111,7 @@
         try
         {
             _saving = true;
-            CharacterService.AddCharacter(_name.Trim(), _description.Trim());
+            CharacterService.AddCharacter(_name.Trim(), _description.Trim(), _personality.Trim());
             Navigation.NavigateTo("/characters");
         }
         catch (Exception ex)

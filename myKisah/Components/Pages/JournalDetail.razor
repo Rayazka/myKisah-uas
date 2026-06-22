@@ -31,64 +31,101 @@
 
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <h1 class="card-title mb-0">@_journal.Title</h1>
-                    <StateBadge State="_journal.State" />
-                </div>
-
-                <div class="mb-3">
-                    <span class="badge bg-light text-dark">
-                        @MoodHelper.GetEmoji(_journal.Mood) @_journal.Mood
-                    </span>
-                </div>
-
-                <div class="journal-content mb-4">
-                    @_journal.Content
-                </div>
-
-                <hr>
-
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
-                        Dibuat: @_journal.CreatedAt.ToString("dd MMM yyyy HH:mm")
-                    </small>
-
-                    <div>
-                        @switch (_journal.State)
-                        {
-                            case JournalState.Draft:
-                                <button class="btn btn-primary" @onclick="SubmitJournal"
-                                        disabled="@_actionLoading">
-                                    Submit
-                                </button>
-                                break;
-
-                            case JournalState.Submitted:
-                                <button class="btn btn-success me-2" @onclick="SaveJournal"
-                                        disabled="@_actionLoading">
-                                    Save
-                                </button>
-                                <button class="btn btn-warning" @onclick="RejectJournal"
-                                        disabled="@_actionLoading">
-                                    Reject
-                                </button>
-                                break;
-
-                            case JournalState.Rejected:
-                                <button class="btn btn-outline-primary" @onclick="ResetJournal"
-                                        disabled="@_actionLoading">
-                                    Reset ke Draft
-                                </button>
-                                break;
-
-                            case JournalState.Saved:
-                                <span class="text-success fw-bold">
-                                    ✓ Journal ini sudah disimpan
-                                </span>
-                                break;
-                        }
+                @if (_isEditing)
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Judul</label>
+                        <input @bind="_editTitle" type="text" class="form-control"
+                               disabled="@_actionLoading" maxlength="100" />
                     </div>
-                </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Isi Journal</label>
+                        <textarea @bind="_editContent" class="form-control" rows="6"
+                                  disabled="@_actionLoading"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mood</label>
+                        <MoodPicker @bind-SelectedMood="_editMood" Disabled="_actionLoading" />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" @onclick="SaveEdit"
+                                disabled="@_actionLoading">
+                            @(_actionLoading ? "Menyimpan..." : "Simpan Perubahan")
+                        </button>
+                        <button class="btn btn-outline-secondary" @onclick="CancelEdit"
+                                disabled="@_actionLoading">
+                            Batal
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h1 class="card-title mb-0">@_journal.Title</h1>
+                        <StateBadge State="_journal.State" />
+                    </div>
+
+                    <div class="mb-3">
+                        <span class="badge bg-light text-dark">
+                            @MoodHelper.GetEmoji(_journal.Mood) @_journal.Mood
+                        </span>
+                    </div>
+
+                    <div class="journal-content mb-4">
+                        @_journal.Content
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Dibuat: @_journal.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                        </small>
+
+                        <div>
+                            <button class="btn btn-outline-primary me-2" @onclick="StartEdit"
+                                    disabled="@_actionLoading">
+                                Edit
+                            </button>
+                            @switch (_journal.State)
+                            {
+                                case JournalState.Draft:
+                                    <button class="btn btn-primary" @onclick="SubmitJournal"
+                                            disabled="@_actionLoading">
+                                        Submit
+                                    </button>
+                                    break;
+
+                                case JournalState.Submitted:
+                                    <button class="btn btn-success me-2" @onclick="SaveJournal"
+                                            disabled="@_actionLoading">
+                                        Save
+                                    </button>
+                                    <button class="btn btn-warning" @onclick="RejectJournal"
+                                            disabled="@_actionLoading">
+                                        Reject
+                                    </button>
+                                    break;
+
+                                case JournalState.Rejected:
+                                    <button class="btn btn-outline-primary" @onclick="ResetJournal"
+                                            disabled="@_actionLoading">
+                                        Reset ke Draft
+                                    </button>
+                                    break;
+
+                                case JournalState.Saved:
+                                    <span class="text-success fw-bold me-3">
+                                        ✓ Journal ini sudah disimpan
+                                    </span>
+                                    break;
+                            }
+                        </div>
+                    </div>
+                }
             </div>
         </div>
 
@@ -105,6 +142,14 @@
                     <h6 class="text-success mb-2">💬 Character Companion</h6>
                     <p class="mb-1 fst-italic">"@_companionMessage"</p>
                     <small class="text-muted">— @_companionName, merespons mood @MoodHelper.GetEmoji(_journal!.Mood) @_journal.Mood</small>
+                    @if (!string.IsNullOrEmpty(_journal!.CharacterId))
+                    {
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-success" @onclick="NavigateToChat">
+                                💬 Chat dengan @_companionName
+                            </button>
+                        </div>
+                    }
                 </div>
             </div>
         }
@@ -128,6 +173,10 @@
     private string _success = "";
     private bool _hasSuccess;
     private bool _showConfirm;
+    private bool _isEditing;
+    private string _editTitle = "";
+    private string _editContent = "";
+    private MoodType _editMood = MoodType.Happy;
     private string _companionName = "";
     private string _companionMessage = "";
 
@@ -302,24 +351,76 @@
 
     private void GoBack() => Navigation.NavigateTo("/journals");
 
+    private void StartEdit()
+    {
+        if (_journal == null) return;
+        _editTitle = _journal.Title;
+        _editContent = _journal.Content;
+        _editMood = _journal.Mood;
+        _isEditing = true;
+    }
+
+    private async Task SaveEdit()
+    {
+        try
+        {
+            _hasError = false;
+            _success = "";
+            _error = "";
+            _actionLoading = true;
+
+            JournalService.UpdateJournal(Id, _editTitle.Trim(), _editContent.Trim(), _editMood);
+            _success = "Journal berhasil diupdate!";
+            _isEditing = false;
+            await LoadJournal();
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _actionLoading = false;
+        }
+    }
+
+    private void CancelEdit()
+    {
+        _isEditing = false;
+    }
+
     private Task LoadCompanion()
     {
         if (_journal == null) return Task.CompletedTask;
 
         try
         {
-            var characters = CharacterService.GetAllCharacters().ToList();
-            if (characters.Any())
+            if (!string.IsNullOrEmpty(_journal.CharacterId))
             {
-                var companion = characters.OrderBy(_ => Guid.NewGuid()).First();
-                _companionName = companion.Name;
-                _companionMessage = CharacterService.GenerateResponse(companion.Id, _journal.Mood);
+                var characters = CharacterService.GetAllCharacters().ToList();
+                var companion = characters.FirstOrDefault(c => c.Id == _journal.CharacterId);
+                if (companion != null)
+                {
+                    _companionName = companion.Name;
+                    _companionMessage = CharacterService.GenerateResponse(companion.Id, _journal.Mood);
+                    return Task.CompletedTask;
+                }
             }
+
+            _companionName = "";
+            _companionMessage = "";
         }
         catch
         {
             _companionMessage = "";
         }
         return Task.CompletedTask;
+    }
+
+    private void NavigateToChat()
+    {
+        if (_journal?.CharacterId != null)
+            Navigation.NavigateTo($"/characters/{_journal.CharacterId}");
     }
 }

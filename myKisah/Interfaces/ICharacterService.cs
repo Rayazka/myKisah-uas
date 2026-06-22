@@ -35,6 +35,6 @@ namespace myKisah.Interfaces;
 public interface ICharacterService
 {
     IEnumerable<Character> GetAllCharacters();
-    Character AddCharacter(string name, string description);
+    Character AddCharacter(string name, string description, string personality);
     string GenerateResponse(string characterId, MoodType mood);
 }

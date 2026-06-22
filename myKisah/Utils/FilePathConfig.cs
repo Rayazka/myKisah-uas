@@ -52,4 +52,7 @@ public class FilePathConfig
     // Jika tidak ditemukan, maka memakai default "Data/characterResponses.json".
     public string ResponsesFile =>
         _configuration["StoragePaths:ResponsesFile"] ?? "Data/characterResponses.json";
+
+    public string ChatSessionsFile =>
+        _configuration["StoragePaths:ChatSessionsFile"] ?? "Data/chatSessions.json";
 }

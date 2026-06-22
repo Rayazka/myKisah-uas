@@ -1,29 +1,12 @@
 [
   {
-    "id": "journal-seed-001",
-    "userId": "user-seed-001",
-    "title": "Hari pertama kuliah",
-    "content": "Hari ini seru banget! Ketemu dosen baru dan teman-teman. Materi KPL cukup challenging tapi menarik.",
-    "mood": "Happy",
-    "state": "Saved",
-    "createdAt": "2025-01-15T10:00:00Z"
-  },
-  {
-    "id": "journal-seed-002",
-    "userId": "user-seed-001",
-    "title": "Deg-degan presentasi",
-    "content": "Besok presentasi CLO2. Udah siapin slide dan demo. Semoga lancar!",
-    "mood": "Anxious",
-    "state": "Draft",
-    "createdAt": "2025-01-16T14:00:00Z"
-  },
-  {
     "id": "9ac70745-4235-40dd-8a14-24a5cf391fd9",
     "userId": "user-seed-002",
     "title": "ds",
     "content": "dsfdsf",
     "mood": "Anxious",
     "state": "Draft",
+    "characterId": null,
     "createdAt": "2026-05-12T03:06:09.9460764Z"
   },
   {
@@ -33,6 +16,7 @@
     "content": "alamak",
     "mood": "Sad",
     "state": "Draft",
+    "characterId": null,
     "createdAt": "2026-05-12T08:48:36.1004426Z"
   },
   {
@@ -42,24 +26,17 @@
     "content": "ga da yang tau",
     "mood": "Happy",
     "state": "Draft",
+    "characterId": null,
     "createdAt": "2026-05-13T07:22:01.6139068Z"
   },
   {
-    "id": "8a5f5fe0-1bda-44e4-bd49-eb0a850c8461",
+    "id": "6a524ac2-b277-497e-8775-953984002ac5",
     "userId": "user-seed-001",
-    "title": "aku ingin makan seblak",
-    "content": "Seblak Azka kok tutup jam 7 coooo",
-    "mood": "Sad",
-    "state": "Draft",
-    "createdAt": "2026-06-21T11:28:55.7968053Z"
-  },
-  {
-    "id": "c79f5c04-9293-41ff-a6ed-200faefb00b2",
-    "userId": "user-seed-001",
-    "title": "sdfdsf",
-    "content": "sdfdsfds",
-    "mood": "Happy",
-    "state": "Draft",
-    "createdAt": "2026-06-21T11:29:20.124668Z"
+    "title": "BM SEBLAK",
+    "content": "HAR INI BM SEBLAKKKKKKKK",
+    "mood": "Angry",
+    "state": "Saved",
+    "characterId": "char1-kdrama",
+    "createdAt": "2026-06-22T01:21:00.1447054Z"
   }
 ]

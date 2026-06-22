@@ -38,7 +38,7 @@ namespace myKisah.Services
             return character;
         }
 
-        public Character AddCharacter(string name, string description)
+        public Character AddCharacter(string name, string description, string personality)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name), "Nama karakter tidak boleh kosong.");
@@ -50,7 +50,8 @@ namespace myKisah.Services
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = name.Trim(),
-                Description = description.Trim()
+                Description = description.Trim(),
+                Personality = (personality ?? "").Trim()
             };
 
             _characterRepository.Add(character);

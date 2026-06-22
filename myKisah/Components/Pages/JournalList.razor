@@ -25,12 +25,10 @@
     <AlertMessage Message="@_error" IsError="true" Show="@_hasError" />
 
     <div class="mb-3">
-        <button class="btn btn-sm btn-outline-primary @(_isFiltering ? "" : "active") mb-2"
-                @onclick="ClearFilter">
-            Semua
-        </button>
         <MoodPicker SelectedMood="_filterMood"
                     SelectedMoodChanged="OnFilterMoodChanged"
+                    ShowAllChip="true"
+                    OnClear="ClearFilter"
                     Disabled="_loading" />
     </div>
 

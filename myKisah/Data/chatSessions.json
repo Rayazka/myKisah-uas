@@ -1,0 +1,56 @@
+[
+  {
+    "id": "19a3380f-b708-4cc2-bf9a-d5630f20c88e",
+    "userId": "user-seed-001",
+    "characterId": "char1-kdrama",
+    "messages": [
+      {
+        "role": "user",
+        "content": "hai kira",
+        "mood": "Happy",
+        "time": "2026-06-22T09:51:20.3294739+07:00"
+      },
+      {
+        "role": "assistant",
+        "content": "Haiuuu! Kamu juga! Bagaimana hari ini lo? Apa yang terjadi dalam hari ini, baik baik saja?",
+        "mood": "Happy",
+        "time": "2026-06-22T09:51:50.1583282+07:00"
+      }
+    ],
+    "createdAt": "2026-06-22T09:51:50.1669803+07:00",
+    "updatedAt": "2026-06-22T09:51:50.1670694+07:00"
+  },
+  {
+    "id": "bf765636-5606-4d9b-b159-80443404178b",
+    "userId": "user-seed-001",
+    "characterId": "char1-kdrama",
+    "messages": [
+      {
+        "role": "user",
+        "content": "hai kira",
+        "mood": "Happy",
+        "time": "2026-06-22T09:51:20.3294739+07:00"
+      },
+      {
+        "role": "assistant",
+        "content": "Haiuuu! Kamu juga! Bagaimana hari ini lo? Apa yang terjadi dalam hari ini, baik baik saja?",
+        "mood": "Happy",
+        "time": "2026-06-22T09:51:50.1583282+07:00"
+      },
+      {
+        "role": "user",
+        "content": "hai kira",
+        "mood": "Happy",
+        "time": "2026-06-22T09:52:57.602485+07:00"
+      },
+      {
+        "role": "assistant",
+        "content": "Hahaha, kamu agak serius gini, kan? Lo, hari ini aku bahagia banget karena aku bisa berbicara dengannya! Kabar apa lo?",
+        "mood": "Happy",
+        "time": "2026-06-22T09:53:07.1817153+07:00"
+      }
+    ],
+    "createdAt": "2026-06-22T09:56:31.3465808+07:00",
+    "updatedAt": "2026-06-22T09:56:31.3469004+07:00"
+  }
+]
