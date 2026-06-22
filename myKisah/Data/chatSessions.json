@@ -48,9 +48,21 @@
         "content": "Hahaha, kamu agak serius gini, kan? Lo, hari ini aku bahagia banget karena aku bisa berbicara dengannya! Kabar apa lo?",
         "mood": "Happy",
         "time": "2026-06-22T09:53:07.1817153+07:00"
+      },
+      {
+        "role": "user",
+        "content": "test",
+        "mood": "Happy",
+        "time": "2026-06-22T10:11:52.7917531+07:00"
+      },
+      {
+        "role": "assistant",
+        "content": "Hahahaha, lo! Ini seperti pertanyaan standar ya? Aku siap mendengarkan cerita apapun lo. Lalu apa kabar lo?",
+        "mood": "Happy",
+        "time": "2026-06-22T10:12:32.7555295+07:00"
       }
     ],
-    "createdAt": "2026-06-22T09:56:31.3465808+07:00",
-    "updatedAt": "2026-06-22T09:56:31.3469004+07:00"
+    "createdAt": "2026-06-22T10:12:48.0159772+07:00",
+    "updatedAt": "2026-06-22T10:12:48.015982+07:00"
   }
 ]

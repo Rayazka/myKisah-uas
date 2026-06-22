@@ -208,7 +208,7 @@
         {
             var aiMood = MoodMapper.ToAiMood(_selectedMood);
             var personality = _character?.Personality ?? _character?.Description ?? "ramah";
-            var aiHistory = _history.TakeLast(10).Select(h => new myKisah.Models.AI.ChatMessage
+            var aiHistory = _history.SkipLast(1).TakeLast(10).Select(h => new myKisah.Models.AI.ChatMessage
             {
                 Role = h.Role,
                 Content = h.Content

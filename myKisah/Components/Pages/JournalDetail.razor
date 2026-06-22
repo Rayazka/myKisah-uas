@@ -3,6 +3,7 @@
 
 @inject IJournalService JournalService
 @inject ICharacterService CharacterService
+@inject OllamaService Ollama
 @inject UserSession Session
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -139,14 +140,36 @@
         {
             <div class="card mt-3 border-success">
                 <div class="card-body">
-                    <h6 class="text-success mb-2">💬 Character Companion</h6>
-                    <p class="mb-1 fst-italic">"@_companionMessage"</p>
-                    <small class="text-muted">— @_companionName, merespons mood @MoodHelper.GetEmoji(_journal!.Mood) @_journal.Mood</small>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="text-success mb-0">Character Companion</h6>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn @(_useAiResponse ? "btn-success" : "btn-outline-success")"
+                                    @onclick="SwitchToAI" disabled="@_isLoadingResponse">
+                                AI
+                            </button>
+                            <button class="btn @(!_useAiResponse ? "btn-success" : "btn-outline-success")"
+                                    @onclick="SwitchToStatic" disabled="@_isLoadingResponse">
+                                Static
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (_isLoadingResponse)
+                    {
+                        <p class="text-muted mb-1">Menghasilkan respons...</p>
+                    }
+                    else
+                    {
+                        <p class="mb-1 fst-italic">"@_companionMessage"</p>
+                        <small class="text-muted">
+                            — @_companionName@(_useAiResponse ? ", berdasarkan isi jurnalmu" : $", merespons mood {MoodHelper.GetEmoji(_journal!.Mood)} {_journal.Mood}")
+                        </small>
+                    }
                     @if (!string.IsNullOrEmpty(_journal!.CharacterId))
                     {
                         <div class="mt-2">
                             <button class="btn btn-sm btn-outline-success" @onclick="NavigateToChat">
-                                💬 Chat dengan @_companionName
+                                Chat dengan @_companionName
                             </button>
                         </div>
                     }
@@ -179,6 +202,8 @@
     private MoodType _editMood = MoodType.Happy;
     private string _companionName = "";
     private string _companionMessage = "";
+    private bool _useAiResponse = true;
+    private bool _isLoadingResponse;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -196,7 +221,10 @@
 
         if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
         await LoadJournal();
-        await LoadCompanion();
+        if (_useAiResponse)
+            await LoadAICompanion();
+        else
+            await LoadStaticCompanion();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -390,32 +418,79 @@
         _isEditing = false;
     }
 
-    private Task LoadCompanion()
+    private async Task LoadAICompanion()
     {
-        if (_journal == null) return Task.CompletedTask;
+        if (_journal?.CharacterId == null) return;
+
+        _isLoadingResponse = true;
+        await InvokeAsync(StateHasChanged);
 
         try
         {
-            if (!string.IsNullOrEmpty(_journal.CharacterId))
-            {
-                var characters = CharacterService.GetAllCharacters().ToList();
-                var companion = characters.FirstOrDefault(c => c.Id == _journal.CharacterId);
-                if (companion != null)
-                {
-                    _companionName = companion.Name;
-                    _companionMessage = CharacterService.GenerateResponse(companion.Id, _journal.Mood);
-                    return Task.CompletedTask;
-                }
-            }
+            var characters = CharacterService.GetAllCharacters().ToList();
+            var companion = characters.FirstOrDefault(c => c.Id == _journal.CharacterId);
+            if (companion == null) return;
 
+            var journalContext = $"Judul: {_journal.Title}\n" +
+                                $"Mood: {_journal.Mood}\n\n" +
+                                $"Isi jurnal:\n{_journal.Content}";
+
+            _companionName = companion.Name;
+            _companionMessage = await Ollama.GetCharacterResponseAsync(
+                companion.Name,
+                MoodMapper.ToAiMood(_journal.Mood),
+                companion.Personality,
+                journalContext
+            );
+        }
+        catch
+        {
             _companionName = "";
             _companionMessage = "";
+        }
+        finally
+        {
+            _isLoadingResponse = false;
+        }
+    }
+
+    private Task LoadStaticCompanion()
+    {
+        if (_journal?.CharacterId == null) return Task.CompletedTask;
+
+        try
+        {
+            var characters = CharacterService.GetAllCharacters().ToList();
+            var companion = characters.FirstOrDefault(c => c.Id == _journal.CharacterId);
+            if (companion != null)
+            {
+                _companionName = companion.Name;
+                _companionMessage = CharacterService.GenerateResponse(companion.Id, _journal.Mood);
+                return Task.CompletedTask;
+            }
         }
         catch
         {
             _companionMessage = "";
         }
+
+        _companionName = "";
+        _companionMessage = "";
         return Task.CompletedTask;
+    }
+
+    private async Task SwitchToAI()
+    {
+        _useAiResponse = true;
+        await LoadAICompanion();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SwitchToStatic()
+    {
+        _useAiResponse = false;
+        LoadStaticCompanion();
+        await InvokeAsync(StateHasChanged);
     }
 
     private void NavigateToChat()
