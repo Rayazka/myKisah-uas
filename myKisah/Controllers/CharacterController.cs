@@ -1,3 +1,6 @@
+// DOMAIN: Character
+// Untuk REST API endpoint karakter — GET list karakter, GET response by mood
+
 using Microsoft.AspNetCore.Mvc;
 using myKisah.Interfaces;
 using myKisah.Models;

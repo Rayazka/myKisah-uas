@@ -1,3 +1,6 @@
+// DOMAIN: AI
+// PURPOSE: CRUD chat sessions ke chatSessions.json — GetLatest, Save, DeleteByUser
+
 using myKisah.Interfaces;
 using myKisah.Models;
 using myKisah.Utils;

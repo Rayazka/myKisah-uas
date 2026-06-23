@@ -97,5 +97,38 @@
     "characterId": "char1-kdrama",
     "aiResponse": "Kamu terlihat sedang menghadapi situasi yang cukup sulit dan tidak ada kata untuk menggambarkannya. Nggak apa-apa, aku sini untuk dengar. Aku tahu bagaimana rasanya ketika kita merasa sendu dan sedih. Tapi aku ingin kamu tahu bahwa kamu bukan sendirian. Banyak orang yang pernah melewati situasi yang sama dan berhasil keluar dari dalamnya. Kamu bisa melakukannya juga. Aku sini untuk mendengar ceritamu tanpa menghakimi, jadi aku mau dengar lebih lanjut tentang apa yang terjadi padamu hari ini.",
     "createdAt": "2026-06-22T06:09:26.0824526Z"
+  },
+  {
+    "id": "0e16bdde-d97e-479f-8d82-e11df52589c1",
+    "userId": "62cb4a5c-8c0f-49dd-9e21-fad6131d062c",
+    "title": "BM SEBLAK",
+    "content": "Pengen seblak tapi tutup",
+    "mood": "Angry",
+    "state": "Saved",
+    "characterId": "06a7d039-d912-4b35-89e4-a65e934e6c49",
+    "aiResponse": "Wah, aku paham loh... Seblak memang bikin aku penasaran, tapi kalau tutup, itu sedih banget. Apa yang terjadi dulu? Sudah ngebawa kamu kesan tidak suka seblak lagi?",
+    "createdAt": "2026-06-22T10:37:14.3262048Z"
+  },
+  {
+    "id": "b34efadd-9293-4989-9c92-e4a8ba30d963",
+    "userId": "user-seed-002",
+    "title": "KESELLL",
+    "content": "Ga Dapet seblak, diambil pa Faidil",
+    "mood": "Angry",
+    "state": "Saved",
+    "characterId": "dc5259be-d951-49a8-9a93-ef41400f06f4",
+    "aiResponse": "Oke, aku paham. Kamu benar-benar marah dan sedih karena ga dapet seblak favoritmu dari Faidil, si seniman makanan khas Betawi. Itu memang sangat menyayangkan, loh.\n\nApa yang terjadi? Apakah Faidil tidak ada di tempat kamu cari seblak ini, ataukah dia hanya tidak mau memberikannya kepada kamu? Coba ceritainya dulu, aku siap mendengarkan dan memberikan dukungan.",
+    "createdAt": "2026-06-22T10:42:59.3125758Z"
+  },
+  {
+    "id": "981652b6-ba52-44fa-8a54-db052532e576",
+    "userId": "user-seed-002",
+    "title": "testt",
+    "content": "jjjjj",
+    "mood": "Sad",
+    "state": "Saved",
+    "characterId": "06a7d039-d912-4b35-89e4-a65e934e6c49",
+    "aiResponse": null,
+    "createdAt": "2026-06-22T10:44:24.5664009Z"
   }
 ]

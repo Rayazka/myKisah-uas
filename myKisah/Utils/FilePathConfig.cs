@@ -43,7 +43,7 @@ public class FilePathConfig
     // Lokasi file dibaca dari appsettings.json pada key:
     // StoragePaths:CharactersFile
     // Jika tidak ditemukan, maka memakai default "Data/characters.json".
-    public string CharactersFile =>
+    public string CuaractersFile =>
         _configuration["StoragePaths:CharactersFile"] ?? "Data/characters.json";
 
     // Property ini digunakan untuk mengambil lokasi file characterResponses.json.

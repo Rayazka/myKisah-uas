@@ -1,3 +1,6 @@
+// DOMAIN: AI
+// PURPOSE: Kontrak akses data chat sessions — GetLatest, Save, DeleteByUser
+
 using myKisah.Models;
 
 namespace myKisah.Interfaces;

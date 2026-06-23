@@ -1,3 +1,5 @@
+@* DOMAIN: Journal
+   Untuk tampilin semua jurnal user — grid card, filter by mood, delete dengan konfirmasi *@
 @page "/journals"
 @rendermode InteractiveServer
 
@@ -114,6 +116,7 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    /// Untuk ambil semua jurnal user, lalu filter berdasarkan mood
     private async Task LoadJournals()
     {
         try
@@ -142,6 +145,7 @@
         ApplyFilter();
     }
 
+    /// Untuk filter jurnal berdasarkan mood yang dipilih user
     private void ApplyFilter()
     {
         if (_isFiltering)

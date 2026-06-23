@@ -1,3 +1,5 @@
+@* DOMAIN: User
+   Untuk halaman pengaturan — lihat profil, jumlah jurnal, logout, hapus akun dengan konfirmasi *@
 @page "/settings"
 @rendermode InteractiveServer
 
@@ -145,6 +147,7 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    /// Untuk keluar — hapus sessionStorage + Session + redirect ke login
     private async void Logout()
     {
         await JS.InvokeVoidAsync("sessionStorage.removeItem", "myKisah.userId");
@@ -166,6 +169,7 @@
         _deleteError = "";
     }
 
+    /// Untuk hapus akun setelah user konfirmasi username
     private async Task ConfirmDeleteAccount()
     {
         _deleteError = "";

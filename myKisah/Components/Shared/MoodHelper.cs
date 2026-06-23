@@ -1,3 +1,6 @@
+// DOMAIN: Shared
+// Untuk mapping MoodType ke emoji — static helper GetEmoji
+
 using myKisah.Models;
 
 namespace myKisah.Components.Shared;

@@ -1,3 +1,6 @@
+// DOMAIN: AI
+// PURPOSE: DTO untuk komunikasi Ollama API — CharacterMood, ChatMessage, OllamaChatRequest, OllamaStreamChunk
+
 namespace myKisah.Models.AI;
 
 public enum CharacterMood
