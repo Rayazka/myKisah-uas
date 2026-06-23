@@ -1,3 +1,5 @@
+@* DOMAIN: Character
+   Untuk ngobrol sama character companion — AI streaming token-by-token, save history, simpan ke jurnal *@
 @page "/characters/{Id}"
 @rendermode InteractiveServer
 @implements IDisposable
@@ -164,6 +166,7 @@
         }
     }
 
+    /// Untuk simpan history chat ke JSON biar bisa dilanjutin nanti
     private void SaveChatHistory()
     {
         if (Session.CurrentUser == null || _character == null) return;
@@ -181,6 +184,7 @@
         ChatRepo.Save(session);
     }
 
+    /// Untuk kirim pesan user ke AI dan stream response token-by-token
     private async Task SendMessage()
     {
         if (_sending) return;
@@ -240,6 +244,7 @@
         }
     }
 
+    /// Untuk simpan response AI terakhir sebagai jurnal baru
     private async Task SaveToJournal()
     {
         if (string.IsNullOrEmpty(_lastAiResponse) || Session.CurrentUser == null) return;

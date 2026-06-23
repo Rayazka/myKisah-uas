@@ -1,3 +1,6 @@
+// DOMAIN: Journal
+// Untuk entitas jurnal — title, content, mood, state, characterId, aiResponse
+
 namespace myKisah.Models;
 
 

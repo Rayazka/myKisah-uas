@@ -1,3 +1,6 @@
+// DOMAIN: Journal
+// Untuk enum 5 mood jurnal — Happy, Sad, Angry, Anxious, Calm (validasi via config)
+
 namespace myKisah.Models;
 
 // TEKNIK: Runtime Configuration (ValidMoods dibaca dari appsettings.json)

@@ -1,3 +1,6 @@
+// DOMAIN: Core
+// PURPOSE: Scoped service — identitas user login per Blazor circuit (Inject di Program.cs)
+
 using myKisah.Models;
 
 namespace myKisah.Services;

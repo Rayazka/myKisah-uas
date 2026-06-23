@@ -1,3 +1,6 @@
+// DOMAIN: Journal
+// Untuk enum state machine jurnal — Draft, Submitted, Saved, Rejected
+
 namespace myKisah.Models;
 
 // Journal System (State Machine)

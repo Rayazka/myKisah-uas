@@ -1,3 +1,6 @@
+// DOMAIN: Journal
+// Untuk enum trigger state machine — Submit, Save, Reject, Reset
+
 namespace myKisah.Automata;
 
 // Journal System

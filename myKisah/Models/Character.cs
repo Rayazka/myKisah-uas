@@ -1,3 +1,6 @@
+// DOMAIN: Character
+// Untuk entitas karakter companion — name, description, personality, greeting
+
 namespace myKisah.Models;
 
 // Character Companion System

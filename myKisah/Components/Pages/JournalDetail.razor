@@ -1,3 +1,5 @@
+@* DOMAIN: Journal
+   Untuk lihat detail jurnal — state machine action bar + companion response AI/Static toggle *@
 @page "/journals/{Id}"
 @rendermode InteractiveServer
 
@@ -186,12 +188,18 @@
     {
         if (!firstRender) return;
 
+        // 1. Cek jika sirkuit memori Blazor saat ini belum mencatat status login (akibat refresh halaman)
         if (!Session.IsLoggedIn)
         {
+            // 2. Ambil ID pengguna yang disimpan secara lokal di sessionStorage browser melalui JS Interop
             var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            
             if (!string.IsNullOrEmpty(userId))
             {
+                // 3. Cari entitas user yang cocok di database berkas JSON
                 var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                
+                // 4. Jika user valid, pulihkan sesi login di memori server
                 if (user != null) Session.Login(user);
             }
         }
@@ -231,6 +239,7 @@
         }
     }
 
+    /// Untuk submit jurnal — Draft ke Submitted via state machine
     private async Task SubmitJournal()
     {
         try
@@ -356,6 +365,7 @@
 
     private void GoBack() => Navigation.NavigateTo("/journals");
 
+    /// Untuk ambil response AI — pakai data AiResponse yang sudah ada, atau generate baru via Ollama
     private async Task LoadAICompanion()
     {
         if (_journal?.CharacterId == null) return;

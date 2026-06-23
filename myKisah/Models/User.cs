@@ -1,3 +1,6 @@
+// DOMAIN: User
+// Untuk entitas user — Id (GUID), Username, CreatedAt
+
 namespace myKisah.Models;
 
 // User Management System

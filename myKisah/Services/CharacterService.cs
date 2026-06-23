@@ -1,3 +1,5 @@
+// DOMAIN: Character
+// PURPOSE: Business logic karakter — GetAll, Add dengan personality, GenerateResponse table-driven
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +23,8 @@ namespace myKisah.Services
             _responseRepository = responseRepository;
         }
 
+        /// Untuk ambil semua karakter companion
+        /// <returns>List Character</returns>
         public IEnumerable<Character> GetAllCharacters()
         {
             return _characterRepository.GetAll();
@@ -38,6 +42,8 @@ namespace myKisah.Services
             return character;
         }
 
+        /// Untuk daftarin karakter baru — nama + deskripsi + personality buat AI prompt
+        /// <returns>Character yang baru dibuat</returns>
         public Character AddCharacter(string name, string description, string personality)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -58,6 +64,8 @@ namespace myKisah.Services
             return character;
         }
 
+        /// Untuk ambil response karakter berdasarkan mood — table-driven lookup, tanpa if/switch
+        /// <returns>String response karakter</returns>
         public string GenerateResponse(string characterId, MoodType mood)
         {
             if (string.IsNullOrWhiteSpace(characterId))

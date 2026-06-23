@@ -1,3 +1,6 @@
+// DOMAIN: AI
+// PURPOSE: Model persistensi history chat — ChatMessageItem + ChatSession
+
 namespace myKisah.Models;
 
 public class ChatMessageItem

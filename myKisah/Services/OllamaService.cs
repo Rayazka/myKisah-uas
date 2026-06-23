@@ -1,3 +1,5 @@
+// DOMAIN: AI
+// PURPOSE: Streaming + non-streaming client ke Ollama API. Build system prompt per karakter.
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
@@ -25,6 +27,8 @@ public class OllamaService
         };
     }
 
+    /// Untuk kirim teks ke Ollama, dapetin respons token-by-token buat efek streaming (buat chat)
+    /// <returns>IAsyncEnumerable token string</returns>
     public async IAsyncEnumerable<string> StreamCharacterResponseAsync(
         string characterName,
         CharacterMood mood,
@@ -106,6 +110,8 @@ public class OllamaService
         }
     }
 
+    /// Untuk kirim teks ke Ollama, dapetin full response sekaligus (buat companion di jurnal)
+    /// <returns>String response lengkap</returns>
     public async Task<string> GetCharacterResponseAsync(
         string characterName,
         CharacterMood mood,
@@ -126,6 +132,8 @@ public class OllamaService
         return fullResponse.ToString();
     }
 
+    /// Untuk bangun system prompt Ollama — nama karakter + mood + personality + aturan berbahasa
+    /// <returns>System prompt string</returns>
     private static string BuildSystemPrompt(string characterName, CharacterMood mood, string personality)
     {
         var moodDesc = mood switch

@@ -72,9 +72,105 @@
         "content": "Halo sendiri dulu! Apa yang terjadi sejak kita last talk? Atau lo mau ceritakan sesuatu yang baru?",
         "mood": "Happy",
         "time": "2026-06-22T12:05:12.6201535+07:00"
+      },
+      {
+        "role": "user",
+        "content": "laperrr",
+        "mood": "Happy",
+        "time": "2026-06-22T14:28:09.5399565+07:00"
+      },
+      {
+        "role": "assistant",
+        "content": "Hahahaha, lo serius nggak bakal cerita apa pun?! Aku rasa lo masih sedang penasaran, kan? Kumpulkan niatnya, aku siap mendengarkan!",
+        "mood": "Happy",
+        "time": "2026-06-22T14:29:11.4917203+07:00"
       }
     ],
-    "createdAt": "2026-06-22T12:30:47.3814922+07:00",
-    "updatedAt": "2026-06-22T12:30:47.3815529+07:00"
+    "createdAt": "2026-06-22T14:45:12.1645057+07:00",
+    "updatedAt": "2026-06-22T14:45:12.1645111+07:00"
+  },
+  {
+    "id": "cf87f0c9-65c8-4bbd-b3f7-91e94cc32a4d",
+    "userId": "user-seed-001",
+    "characterId": "char2-mystic",
+    "messages": [
+      {
+        "role": "user",
+        "content": "uy lun",
+        "mood": "Happy",
+        "time": "2026-06-22T14:45:28.2300962+07:00"
+      },
+      {
+        "role": "assistant",
+        "content": "senang banget bisa ngobrol sama lo! apa yang terjadi hari ini? cerita lo apa?",
+        "mood": "Happy",
+        "time": "2026-06-22T14:46:09.0408707+07:00"
+      }
+    ],
+    "createdAt": "2026-06-22T14:46:09.0474729+07:00",
+    "updatedAt": "2026-06-22T14:46:09.0474765+07:00"
+  },
+  {
+    "id": "626786f4-8387-40c3-96e7-09f0c9bb4905",
+    "userId": "user-seed-001",
+    "characterId": "char2-mystic",
+    "messages": [
+      {
+        "role": "user",
+        "content": "uy lun",
+        "mood": "Happy",
+        "time": "2026-06-22T14:45:28.2300962+07:00"
+      },
+      {
+        "role": "assistant",
+        "content": "senang banget bisa ngobrol sama lo! apa yang terjadi hari ini? cerita lo apa?",
+        "mood": "Happy",
+        "time": "2026-06-22T14:46:09.0408707+07:00"
+      }
+    ],
+    "createdAt": "2026-06-22T15:07:43.3917922+07:00",
+    "updatedAt": "2026-06-22T15:07:43.3917946+07:00"
+  },
+  {
+    "id": "19dff840-16bb-4218-baba-7ab9cdcb5690",
+    "userId": "62cb4a5c-8c0f-49dd-9e21-fad6131d062c",
+    "characterId": "char1-kdrama",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Halo Kira",
+        "mood": "Happy",
+        "time": "2026-06-22T17:34:42.4965564+07:00"
+      },
+      {
+        "role": "assistant",
+        "content": "Halo ya! Bagaimana harimu hari ini? Apa yang terjadi yang bisa aku sambut dulu?",
+        "mood": "Happy",
+        "time": "2026-06-22T17:35:23.3498503+07:00"
+      }
+    ],
+    "createdAt": "2026-06-22T17:35:23.3527971+07:00",
+    "updatedAt": "2026-06-22T17:35:23.3527984+07:00"
+  },
+  {
+    "id": "1377d2b5-a31a-472a-8bda-cb3ba9e0851d",
+    "userId": "62cb4a5c-8c0f-49dd-9e21-fad6131d062c",
+    "characterId": "char1-kdrama",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Halo Kira",
+        "mood": "Happy",
+        "time": "2026-06-22T17:34:42.4965564+07:00"
+      },
+      {
+        "role": "assistant",
+        "content": "Halo ya! Bagaimana harimu hari ini? Apa yang terjadi yang bisa aku sambut dulu?",
+        "mood": "Happy",
+        "time": "2026-06-22T17:35:23.3498503+07:00"
+      }
+    ],
+    "createdAt": "2026-06-22T17:35:41.2005437+07:00",
+    "updatedAt": "2026-06-22T17:35:41.2005459+07:00"
   }
 ]

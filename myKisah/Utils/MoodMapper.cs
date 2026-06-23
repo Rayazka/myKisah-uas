@@ -1,3 +1,6 @@
+// DOMAIN: AI
+// PURPOSE: Mapping 5 MoodType (app) ke 8 CharacterMood (AI) untuk prompt Ollama
+
 using myKisah.Models;
 using myKisah.Models.AI;
 

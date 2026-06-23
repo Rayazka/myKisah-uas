@@ -1,3 +1,5 @@
+@* DOMAIN: Journal
+   Untuk buat/update jurnal — auto-draft, pilih character, generate AI response, publish ke Saved *@
 @page "/journals/new/{Id?}"
 @rendermode InteractiveServer
 
@@ -177,6 +179,7 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    /// Untuk simpan jurnal — update draft + publish ke Saved + generate AI response
     private async Task SubmitJournal()
     {
         if (_saving || _isGeneratingAI) return;
@@ -237,6 +240,7 @@
         }
     }
 
+    /// Untuk generate response AI atau static, simpan AiResponse ke data jurnal
     private async Task GenerateResponse(bool ai)
     {
         if (!ai)
