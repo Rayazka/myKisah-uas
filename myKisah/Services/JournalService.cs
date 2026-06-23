@@ -35,12 +35,10 @@ public class JournalService : ServiceBase, IJournalService
     protected override string ServiceName => "JournalService";
 
     // Implementasi method IJournalService (CreateJournal, GetJournalsByUser, DeleteJournal)
-    public Journal CreateJournal(string userId, string title, string content, MoodType mood)
+    public Journal CreateJournal(string userId, string title, string content, MoodType mood, string? characterId = null)
     {
         // Input tidak boleh kosong
-        Validator. ValidateNotEmpty(userId, "UserId");
-        Validator.ValidateNotEmpty(title, "Title");
-        Validator.ValidateNotEmpty(content, "Content");
+        Validator.ValidateNotEmpty(userId, "UserId");
     
         // Mood harus valid (sesuai enum)
         Validator.ValidateInEnum(mood, "Mood");
@@ -58,18 +56,61 @@ public class JournalService : ServiceBase, IJournalService
         }
 
         // Buat journal baru dengan state Draft (state awal)
+        var state = string.IsNullOrWhiteSpace(content) ? JournalState.Draft : JournalState.Saved;
         Journal journal = new Journal
         {
             UserId = userId,
             Title = title,
             Content = content,
-            Mood = mood
+            Mood = mood,
+            State = state,
+            CharacterId = characterId
         };
 
         // Simpan journal ke repository (database)
         _repository.Add(journal);
         return journal;
     }
+
+    public Journal UpdateJournal(string id, string title, string content, MoodType mood, string? characterId = null)
+    {
+        var journal = _repository.GetById(id);
+        Validator.ValidateExists(journal, $"Journal dengan Id '{id}'");
+
+        Validator.ValidateNotEmpty(title, "Title");
+        Validator.ValidateNotEmpty(content, "Content");
+        Validator.ValidateInEnum(mood, "Mood");
+
+        int maxLength = _configuration.GetValue<int>("JournalConfig:MaxContentLength");
+        if (content.Length > maxLength)
+            throw new ArgumentException($"Content tidak boleh lebih dari {maxLength} karakter");
+
+        journal!.Title = title;
+        journal.Content = content;
+        journal.Mood = mood;
+        if (characterId != null)
+            journal.CharacterId = characterId;
+
+        _repository.Update(journal);
+        return journal;
+    }
+
+public void SetAiResponse(string id, string aiResponse)
+{
+    var journal = _repository.GetById(id);
+    Validator.ValidateExists(journal, $"Journal dengan Id '{id}'");
+    journal!.AiResponse = aiResponse;
+    _repository.Update(journal);
+}
+
+public void PublishJournal(string id)
+{
+    var journal = _repository.GetById(id);
+    Validator.ValidateExists(journal, $"Journal dengan Id '{id}'");
+    journal!.State = _stateMachine.Transition(journal.State, JournalTrigger.Submit);
+    journal.State = _stateMachine.Transition(journal.State, JournalTrigger.Save);
+    _repository.Update(journal);
+}
 
     // Untuk mendapatkan semua journal milik user tertentu, panggil repository dengan filter UserId
     public IEnumerable<Journal> GetJournalsByUser(string userId)

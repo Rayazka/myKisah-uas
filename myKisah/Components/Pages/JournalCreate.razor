@@ -1,0 +1,344 @@
+@* DOMAIN: Journal
+   Untuk buat/update jurnal — auto-draft, pilih character, generate AI response, publish ke Saved *@
+@page "/journals/new/{Id?}"
+@rendermode InteractiveServer
+
+@inject IJournalService JournalService
+@inject ICharacterService CharacterService
+@inject OllamaService Ollama
+@inject UserSession Session
+@inject NavigationManager Navigation
+@inject IConfiguration Configuration
+
+<PageTitle>Tulis Journal — myKisah</PageTitle>
+
+<div class="container-fluid">
+    <div class="create-container">
+        <h1 class="mb-3">Tulis Journal Baru</h1>
+
+        <AlertMessage Message="_error" IsError="true" Show="_hasError" />
+
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Judul</label>
+                        <input @bind="_title"
+                               type="text" class="form-control"
+                               placeholder="Apa yang ingin kamu tulis hari ini?"
+                               maxlength="100" />
+                        <small class="text-muted">@_title.Length/100 karakter
+                            @if (_draftSaved) { <span class="text-success"> — Draft tersimpan</span> }
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Isi Journal</label>
+                        <textarea @bind="_content" class="form-control" rows="6"
+                                  placeholder="Tulis isi journalmu di sini..."
+                                  disabled="@_saving"></textarea>
+                        <small class="text-muted @(_content.Length > _maxLength ? "text-danger" : "")">
+                            @_content.Length/@_maxLength karakter
+                        </small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Mood</label>
+                        <MoodPicker @bind-SelectedMood="_mood" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Character Companion</label>
+                        <select @bind="_selectedCharacterId" class="form-select">
+                            <option value="">-- Tanpa karakter --</option>
+                            @foreach (var c in _characters)
+                            {
+                                <option value="@c.Id">@c.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" @onclick="SubmitJournal">
+                            @(_saving ? "Menyimpan..." : "Simpan Journal")
+                        </button>
+                        <button class="btn btn-outline-secondary" @onclick="Cancel">
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        @* AI Response Section *@
+        @if (_journalSaved)
+        {
+            <div class="card mt-3 border-success">
+                <div class="card-body">
+                    <h5 class="text-success mb-3">Journal tersimpan!</h5>
+
+                    @if (!string.IsNullOrEmpty(_selectedCharacterId))
+                    {
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn @(_useAiResponse ? "btn-success" : "btn-outline-success")"
+                                        @onclick="SwitchToAI">
+                                    AI
+                                </button>
+                                <button class="btn @(!_useAiResponse ? "btn-success" : "btn-outline-success")"
+                                        @onclick="SwitchToStatic">
+                                    Static
+                                </button>
+                            </div>
+                        </div>
+
+                        @if (_isGeneratingAI)
+                        {
+                            <div class="text-center py-3">
+                                <p class="text-muted mb-2">AI sedang membaca jurnalmu...</p>
+                                <span class="typing-indicator-dots">
+                                    <span></span><span></span><span></span>
+                                </span>
+                            </div>
+                        }
+                        else if (!string.IsNullOrEmpty(_aiResponse))
+                        {
+                            <p class="mb-2 fst-italic">"@_aiResponse"</p>
+                            <small class="text-muted">— @_aiCompanionName@(_useAiResponse ? ", berdasarkan isi jurnalmu" : "")</small>
+                        }
+                    }
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-primary" @onclick="ViewJournal">
+                            Lihat Detail Jurnal
+                        </button>
+                        <button class="btn btn-outline-secondary" @onclick="WriteAgain">
+                            Tulis Lagi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string? Id { get; set; }
+
+    private string _title = "";
+    private string _content = "";
+    private MoodType _mood = MoodType.Happy;
+    private bool _saving;
+    private string _error = "";
+    private bool _hasError;
+    private int _maxLength = 5000;
+    private List<Character> _characters = new();
+    private string _selectedCharacterId = "";
+
+    private bool _journalSaved;
+    private string _createdJournalId = "";
+    private string _draftJournalId = "";
+    private bool _draftSaved;
+    private string _aiResponse = "";
+    private string _aiCompanionName = "";
+    private bool _isGeneratingAI;
+    private bool _useAiResponse = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        _maxLength = Configuration.GetValue<int>("JournalConfig:MaxContentLength");
+        _characters = CharacterService.GetAllCharacters().ToList();
+
+        if (!string.IsNullOrEmpty(Id))
+        {
+            var journals = JournalService.GetJournalsByUser(Session.CurrentUser!.Id);
+            var journal = journals.FirstOrDefault(j => j.Id == Id);
+            if (journal != null)
+            {
+                _draftJournalId = journal.Id;
+                _title = journal.Title;
+                _content = journal.Content;
+                _mood = journal.Mood;
+                _selectedCharacterId = journal.CharacterId ?? "";
+                _draftSaved = true;
+            }
+        }
+        else if (string.IsNullOrEmpty(_draftJournalId))
+        {
+            try
+            {
+                var draft = JournalService.CreateJournal(
+                    Session.CurrentUser!.Id, "", "", MoodType.Happy, null);
+                _draftJournalId = draft.Id;
+                _draftSaved = true;
+            }
+            catch { }
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// Untuk simpan jurnal — update draft + publish ke Saved + generate AI response
+    private async Task SubmitJournal()
+    {
+        if (_saving || _isGeneratingAI) return;
+        _hasError = false;
+        _error = "";
+
+        if (string.IsNullOrWhiteSpace(_title.Trim()))
+        {
+            _hasError = true;
+            _error = "Judul tidak boleh kosong.";
+            return;
+        }
+
+        if (_content.Length > _maxLength)
+        {
+            _hasError = true;
+            _error = $"Isi journal terlalu panjang (max {_maxLength} karakter).";
+            return;
+        }
+
+        try
+        {
+            _saving = true;
+
+            if (string.IsNullOrEmpty(_draftJournalId))
+            {
+                var draft = JournalService.CreateJournal(
+                    Session.CurrentUser!.Id, _title.Trim(), _content.Trim(),
+                    _mood, string.IsNullOrEmpty(_selectedCharacterId) ? null : _selectedCharacterId
+                );
+                _draftJournalId = draft.Id;
+            }
+
+            JournalService.UpdateJournal(_draftJournalId, _title.Trim(), _content.Trim(), _mood,
+                string.IsNullOrWhiteSpace(_selectedCharacterId) ? null : _selectedCharacterId);
+            JournalService.PublishJournal(_draftJournalId);
+            _createdJournalId = _draftJournalId;
+
+            _journalSaved = true;
+
+            if (!string.IsNullOrEmpty(_selectedCharacterId))
+            {
+                await GenerateResponse(_useAiResponse);
+            }
+            else
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    /// Untuk generate response AI atau static, simpan AiResponse ke data jurnal
+    private async Task GenerateResponse(bool ai)
+    {
+        if (!ai)
+        {
+            GenerateStaticResponse();
+            return;
+        }
+
+        _isGeneratingAI = true;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            var companion = _characters.FirstOrDefault(c => c.Id == _selectedCharacterId);
+            if (companion != null)
+            {
+                var journalContext = $"Judul: {_title}\nMood: {_mood}\n\nIsi jurnal:\n{_content}";
+
+                _aiCompanionName = companion.Name;
+                _aiResponse = await Ollama.GetCharacterResponseAsync(
+                    companion.Name,
+                    MoodMapper.ToAiMood(_mood),
+                    companion.Personality,
+                    journalContext
+                );
+
+                JournalService.SetAiResponse(_createdJournalId, _aiResponse);
+            }
+        }
+        catch
+        {
+            _aiResponse = "";
+            _aiCompanionName = "";
+            _useAiResponse = false;
+            GenerateStaticResponse();
+        }
+        finally
+        {
+            _isGeneratingAI = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void GenerateStaticResponse()
+    {
+        try
+        {
+            var companion = _characters.FirstOrDefault(c => c.Id == _selectedCharacterId);
+            if (companion != null)
+            {
+                _aiCompanionName = companion.Name;
+                _aiResponse = CharacterService.GenerateResponse(companion.Id, _mood);
+                JournalService.SetAiResponse(_createdJournalId, _aiResponse);
+            }
+        }
+        catch
+        {
+            _aiResponse = "";
+        }
+    }
+
+    private async Task SwitchToAI()
+    {
+        if (_isGeneratingAI) return;
+        _useAiResponse = true;
+        await GenerateResponse(true);
+    }
+
+    private async Task SwitchToStatic()
+    {
+        if (_isGeneratingAI) return;
+        _useAiResponse = false;
+        GenerateStaticResponse();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void ViewJournal()
+    {
+        Navigation.NavigateTo($"/journals/{_createdJournalId}");
+    }
+
+    private void WriteAgain()
+    {
+        _title = "";
+        _content = "";
+        _mood = MoodType.Happy;
+        _selectedCharacterId = "";
+        _aiResponse = "";
+        _aiCompanionName = "";
+        _journalSaved = false;
+        _createdJournalId = "";
+        _draftJournalId = "";
+        _draftSaved = false;
+    }
+
+    private void Cancel()
+    {
+        if (_saving || _isGeneratingAI) return;
+        Navigation.NavigateTo("/journals");
+    }
+}

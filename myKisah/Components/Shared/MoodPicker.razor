@@ -1,0 +1,75 @@
+@* DOMAIN: Shared
+   Untuk pilih mood — 5 chip emoji horizontal + opsional chip "Semua" buat filter *@
+@namespace myKisah.Components.Shared
+
+<div class="mood-picker">
+    @if (ShowAllChip)
+    {
+        <button type="button"
+                class="mood-chip mood-chip-all @(!_hasSelection ? "active" : "")"
+                disabled="@Disabled"
+                @onclick="OnClearAll"
+                title="Semua">
+            <span class="mood-label">Semua</span>
+        </button>
+    }
+    @foreach (var mood in _moods)
+    {
+        <button type="button"
+                class="mood-chip mood-chip-@mood.Mood.ToString().ToLower() @(SelectedMood == mood.Mood && _hasSelection ? "active" : "")"
+                disabled="@Disabled"
+                @onclick="() => OnSelectMood(mood.Mood)"
+                title="@mood.Label">
+            <span class="mood-emoji">@mood.Emoji</span>
+            <span class="mood-label">@mood.Label</span>
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public MoodType SelectedMood { get; set; } = MoodType.Happy;
+
+    [Parameter]
+    public EventCallback<MoodType> SelectedMoodChanged { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool ShowAllChip { get; set; }
+
+    [Parameter]
+    public EventCallback OnClear { get; set; }
+
+    private bool _hasSelection = true;
+
+    protected override void OnInitialized()
+    {
+        _hasSelection = !ShowAllChip;
+    }
+
+    private readonly List<(MoodType Mood, string Emoji, string Label)> _moods = new()
+    {
+        (MoodType.Happy,   "😊", "Happy"),
+        (MoodType.Sad,     "😢", "Sad"),
+        (MoodType.Angry,   "😠", "Angry"),
+        (MoodType.Anxious, "😰", "Anxious"),
+        (MoodType.Calm,    "😌", "Calm"),
+    };
+
+    private async Task OnSelectMood(MoodType mood)
+    {
+        if (Disabled) return;
+        if (mood == SelectedMood) return;
+        _hasSelection = true;
+        await SelectedMoodChanged.InvokeAsync(mood);
+    }
+
+    private async Task OnClearAll()
+    {
+        if (Disabled) return;
+        _hasSelection = false;
+        await OnClear.InvokeAsync();
+    }
+}

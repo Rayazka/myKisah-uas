@@ -1,0 +1,107 @@
+@* DOMAIN: User
+   Untuk halaman login — cari user by username, redirect ke /journals, link ke /register *@
+@layout myKisah.Components.Layout.LoginLayout
+@page "/"
+@rendermode InteractiveServer
+
+@inject IUserService UserService
+@inject UserSession Session
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>myKisah — Masuk</PageTitle>
+
+<div class="login-card">
+    <h1 class="brand">myKisah</h1>
+    <p class="tagline">Build habits, write your journey, grow together.</p>
+
+    <AlertMessage Message="@_error" IsError="true" Show="@_hasError" />
+
+    <input @bind="_username" @bind:event="oninput"
+           type="text" class="login-form-control"
+           placeholder="Username" disabled="@_loading"
+           @onkeydown="HandleKeyDown" />
+
+    <button class="login-btn" @onclick="HandleLogin"
+            disabled="@_loading">
+        @(_loading ? "Mohon tunggu..." : "Masuk")
+    </button>
+
+    <p class="login-hint">
+        Belum punya akun?
+        <a href="/register" @onclick="GoToRegister" @onclick:preventDefault
+           style="color: var(--color-primary); text-decoration: underline;">
+            Daftar di sini
+        </a>
+    </p>
+
+    <footer class="login-footer">
+        myKisah v1.0
+    </footer>
+</div>
+
+@code {
+    private string _username = "";
+    private string _error = "";
+    private bool _hasError;
+    private bool _loading;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && Session.IsLoggedIn)
+        {
+            Navigation.NavigateTo("/journals");
+        }
+        return Task.CompletedTask;
+    }
+
+    private void GoToRegister()
+    {
+        Navigation.NavigateTo("/register");
+    }
+
+    private async Task HandleLogin()
+    {
+        var trimmed = _username.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            _hasError = true;
+            _error = "Username tidak boleh kosong.";
+            return;
+        }
+
+        _loading = true;
+        _hasError = false;
+        _error = "";
+
+        try
+        {
+            var users = UserService.GetAllUsers();
+            var user = users.FirstOrDefault(u =>
+                u.Username.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+            {
+                _loading = false;
+                _hasError = true;
+                _error = "Username tidak ditemukan.";
+                return;
+            }
+
+            Session.Login(user);
+            await JS.InvokeVoidAsync("sessionStorage.setItem", "myKisah.userId", user.Id);
+            Navigation.NavigateTo("/journals");
+        }
+        catch (Exception ex)
+        {
+            _loading = false;
+            _hasError = true;
+            _error = ex.Message;
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await HandleLogin();
+    }
+}

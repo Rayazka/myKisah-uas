@@ -31,11 +31,18 @@ builder.Services.AddSingleton<IUserRepository, JsonUserRepository>();
 builder.Services.AddSingleton<IJournalRepository, JsonJournalRepository>();
 builder.Services.AddSingleton<ICharacterRepository, JsonCharacterRepository>();
 builder.Services.AddSingleton<ICharacterResponseRepository, JsonCharacterResponseRepository>();
+builder.Services.AddSingleton<IChatSessionRepository, JsonChatSessionRepository>();
 
 // Services 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJournalService, JournalService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
+
+// Session
+builder.Services.AddScoped<UserSession>();
+
+// Ollama AI
+builder.Services.AddHttpClient<OllamaService>();
 
 var app = builder.Build();
 

@@ -1,0 +1,210 @@
+@* DOMAIN: User
+   Untuk halaman pengaturan — lihat profil, jumlah jurnal, logout, hapus akun dengan konfirmasi *@
+@page "/settings"
+@rendermode InteractiveServer
+
+@inject UserSession Session
+@inject NavigationManager Navigation
+@inject IUserService UserService
+@inject IJournalService JournalService
+@inject IJSRuntime JS
+
+<PageTitle>Settings — myKisah</PageTitle>
+
+<div class="container-fluid">
+    @if (_loading)
+    {
+        <p class="text-muted">Loading...</p>
+    }
+    else if (!Session.IsLoggedIn || Session.CurrentUser == null)
+    {
+        <AlertMessage Message="Kamu belum login." IsError="true" Show="true" />
+    }
+    else
+    {
+        <h1 class="mb-4">Settings</h1>
+
+        <AlertMessage Message="@_error" IsError="true" Show="@_hasError" />
+
+        @* Akun Section *@
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Akun</h5>
+                <div class="settings-row">
+                    <span class="settings-label">Username</span>
+                    <span class="settings-value">@Session.CurrentUser.Username</span>
+                </div>
+                <div class="settings-row">
+                    <span class="settings-label">Jumlah Journal</span>
+                    <span class="settings-value">@_journalCount</span>
+                </div>
+                <div class="settings-row">
+                    <span class="settings-label">Terdaftar sejak</span>
+                    <span class="settings-value">@Session.CurrentUser.CreatedAt.ToString("dd MMM yyyy")</span>
+                </div>
+            </div>
+        </div>
+
+        @* Aksi Section *@
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Aksi</h5>
+                <div class="d-flex gap-3 flex-wrap">
+                    <button class="btn btn-outline-secondary" @onclick="Logout" disabled="@_deleting">
+                        Logout
+                    </button>
+                    <button class="btn btn-danger" @onclick="ShowDeleteModal" disabled="@_deleting">
+                        Hapus Akun
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@* Delete Account Modal *@
+@if (_showDeleteModal)
+{
+    <div class="modal-backdrop fade show" style="display:block;"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title text-danger">Hapus Akun</h5>
+                    <button type="button" class="btn-close"
+                            @onclick="CancelDeleteModal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3">
+                        Akun yang dihapus <strong>tidak bisa dikembalikan</strong>.
+                        Semua journal dan data kamu akan ikut terhapus.
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(_deleteError))
+                    {
+                        <div class="alert alert-danger py-2">@_deleteError</div>
+                    }
+
+                    <label class="form-label fw-bold">
+                        Ketik <strong class="text-danger">@Session.CurrentUser?.Username</strong> untuk konfirmasi:
+                    </label>
+                    <input @bind="_confirmUsername"
+                           type="text"
+                           class="form-control"
+                           placeholder="Ketik username..."
+                           @onkeydown="HandleDeleteKeyDown" />
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-outline-secondary"
+                            @onclick="CancelDeleteModal">
+                        Batal
+                    </button>
+                    <button type="button" class="btn btn-danger"
+                            @onclick="ConfirmDeleteAccount"
+                            disabled="@_deleting">
+                        @(_deleting ? "Menghapus..." : "Hapus Akun")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private int _journalCount;
+    private bool _showDeleteModal;
+    private string _confirmUsername = "";
+    private string _deleteError = "";
+    private string _error = "";
+    private bool _hasError;
+    private bool _deleting;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        if (!Session.IsLoggedIn)
+        {
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
+        }
+
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+
+        try
+        {
+            _journalCount = JournalService.GetJournalsByUser(Session.CurrentUser!.Id).Count();
+        }
+        catch { }
+
+        _loading = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// Untuk keluar — hapus sessionStorage + Session + redirect ke login
+    private async void Logout()
+    {
+        await JS.InvokeVoidAsync("sessionStorage.removeItem", "myKisah.userId");
+        Session.Logout();
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+
+    private void ShowDeleteModal()
+    {
+        _confirmUsername = "";
+        _deleteError = "";
+        _showDeleteModal = true;
+    }
+
+    private void CancelDeleteModal()
+    {
+        _showDeleteModal = false;
+        _confirmUsername = "";
+        _deleteError = "";
+    }
+
+    /// Untuk hapus akun setelah user konfirmasi username
+    private async Task ConfirmDeleteAccount()
+    {
+        _deleteError = "";
+
+        if (Session.CurrentUser == null) return;
+
+        if (!_confirmUsername.Equals(Session.CurrentUser.Username, StringComparison.OrdinalIgnoreCase))
+        {
+            _deleteError = "Username tidak cocok. Coba lagi.";
+            return;
+        }
+
+        try
+        {
+            _deleting = true;
+            UserService.DeleteUser(Session.CurrentUser.Id);
+            await JS.InvokeVoidAsync("sessionStorage.removeItem", "myKisah.userId");
+            Session.Logout();
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            _deleteError = ex.Message;
+        }
+        finally
+        {
+            _deleting = false;
+        }
+    }
+
+    private async Task HandleDeleteKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await ConfirmDeleteAccount();
+        }
+    }
+}

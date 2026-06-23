@@ -11,9 +11,13 @@ namespace myKisah.Controllers;
 // HTTP endpoint handler untuk Journal management.
 // Route: /api/journal
 // Endpoints:
-// - GET  /api/journal/{userId}  → Ambil semua journal milik user
-// - POST /api/journal           → Buat journal baru (State=Draft)
-// - DELETE /api/journal/{id}    → Hapus journal
+// - GET  /api/journal/{userId}   → Ambil semua journal milik user
+// - POST /api/journal            → Buat journal baru (State=Draft)
+// - POST /api/journal/{id}/submit → Submit journal (Draft → Submitted)
+// - POST /api/journal/{id}/save   → Save journal (Submitted → Saved)
+// - POST /api/journal/{id}/reject → Reject journal (Submitted → Rejected)
+// - POST /api/journal/{id}/reset  → Reset journal (Rejected → Draft)
+// - DELETE /api/journal/{id}     → Hapus journal
 
 [ApiController]
 [Route("api/journal")]
@@ -51,38 +55,33 @@ public class JournalController : ControllerBase
         
     }
 
-    // POST /api/journal/{id}/submit
-[HttpPost("{id}/submit")]
-public IActionResult Submit(string id)
-{
-    try 
+    [HttpPost("{id}/submit")]
+    public IActionResult Submit(string id)
     {
-        // Memanggil service yang sudah menggunakan Automata Transition
-        var journal = _service.SubmitJournal(id); 
+        var journal = _service.SubmitJournal(id);
         return Ok(journal);
     }
-    catch (InvalidOperationException ex)
-    {
-        // Jika transisi ilegal (misal: sudah Submitted mau di-Submit lagi)
-        // Ini membuktikan penjaga (Guard) Automata bekerja!
-        return BadRequest(new { message = ex.Message });
-    }
-}
 
-// POST /api/journal/{id}/save
-[HttpPost("{id}/save")]
-public IActionResult Save(string id)
-{
-    try 
+    [HttpPost("{id}/save")]
+    public IActionResult Save(string id)
     {
         var journal = _service.SaveJournal(id);
         return Ok(journal);
     }
-    catch (InvalidOperationException ex)
+
+    [HttpPost("{id}/reject")]
+    public IActionResult Reject(string id)
     {
-        return BadRequest(new { message = ex.Message });
+        var journal = _service.RejectJournal(id);
+        return Ok(journal);
     }
-}
+
+    [HttpPost("{id}/reset")]
+    public IActionResult Reset(string id)
+    {
+        var journal = _service.ResetJournal(id);
+        return Ok(journal);
+    }
 
     // DELETE /api/journal/{id}
     [HttpDelete("{id}")]

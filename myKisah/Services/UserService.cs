@@ -128,7 +128,7 @@ public class UserService : ServiceBase, IUserService
             }
 
             // Update username
-            user.Username = username;
+            user!.Username = username;
 
             // Simpan perubahan ke repository
             _repository.Update(user);

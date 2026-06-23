@@ -1,0 +1,198 @@
+@* DOMAIN: Journal
+   Untuk tampilin semua jurnal user — grid card, filter by mood, delete dengan konfirmasi *@
+@page "/journals"
+@rendermode InteractiveServer
+
+@inject IJournalService JournalService
+@inject UserSession Session
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject IUserService UserService
+
+<PageTitle>My Journals — myKisah</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">Journal @Session.CurrentUser?.Username</h1>
+            <p class="text-muted mb-0">@_journals.Count journal</p>
+        </div>
+        <div>
+            <button class="btn btn-primary" @onclick="NavigateToCreate">
+                + Tulis Journal
+            </button>
+        </div>
+    </div>
+
+    <AlertMessage Message="@_error" IsError="true" Show="@_hasError" />
+
+    <div class="mb-3">
+        <MoodPicker SelectedMood="_filterMood"
+                    SelectedMoodChanged="OnFilterMoodChanged"
+                    ShowAllChip="true"
+                    OnClear="ClearFilter"
+                    Disabled="_loading" />
+    </div>
+
+    @if (_loading)
+    {
+        <p class="text-muted">Loading journals...</p>
+    }
+    else if (!_filteredJournals.Any())
+    {
+        <EmptyState Message="Belum ada journal. Mulai tulis ceritamu!"
+                    ActionLabel="Tulis Journal Pertamamu"
+                    OnAction="NavigateToCreate" />
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var journal in _filteredJournals)
+            {
+                <div class="col-md-4 col-sm-6 mb-3">
+                    <div class="card journal-card" @onclick="() => NavigateToDetail(journal.Id)">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title">@journal.Title</h5>
+                                <StateBadge State="journal.State" />
+                            </div>
+                            <div class="text-muted small mb-2">
+                                @MoodHelper.GetEmoji(journal.Mood) @journal.Mood
+                            </div>
+                            <p class="card-text text-muted small">
+                                @Truncate(journal.Content, 50)
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    @journal.CreatedAt.ToString("dd MMM yyyy")
+                                </small>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        @onclick="(e) => OnDeleteClick(e, journal.Id)"
+                                        @onclick:stopPropagation="true">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <ConfirmDialog Title="Hapus Journal?"
+                   Message="Journal yang dihapus tidak bisa dikembalikan. Lanjutkan?"
+                   Show="_showConfirm"
+                   OnResult="OnConfirmDelete" />
+</div>
+
+@code {
+    private List<Journal> _journals = new();
+    private List<Journal> _filteredJournals = new();
+    private MoodType _filterMood = MoodType.Happy;
+    private bool _isFiltering;
+    private bool _loading = true;
+    private string _error = "";
+    private bool _hasError;
+
+    private bool _showConfirm;
+    private string _journalToDelete = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        if (!Session.IsLoggedIn)
+        {
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
+        }
+
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+        await LoadJournals();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// Untuk ambil semua jurnal user, lalu filter berdasarkan mood
+    private async Task LoadJournals()
+    {
+        try
+        {
+            _hasError = false;
+            _error = "";
+            _loading = true;
+            _journals = JournalService.GetJournalsByUser(Session.CurrentUser!.Id).ToList();
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OnFilterMoodChanged(MoodType mood)
+    {
+        _filterMood = mood;
+        _isFiltering = true;
+        ApplyFilter();
+    }
+
+    /// Untuk filter jurnal berdasarkan mood yang dipilih user
+    private void ApplyFilter()
+    {
+        if (_isFiltering)
+            _filteredJournals = _journals.Where(j => j.Mood == _filterMood).ToList();
+        else
+            _filteredJournals = _journals.ToList();
+    }
+
+    private async Task ClearFilter()
+    {
+        _isFiltering = false;
+        ApplyFilter();
+    }
+
+    private void NavigateToCreate() => Navigation.NavigateTo("/journals/new");
+
+    private void NavigateToDetail(string id) => Navigation.NavigateTo($"/journals/{id}");
+
+    private async Task OnDeleteClick(MouseEventArgs e, string id)
+    {
+        _journalToDelete = id;
+        _showConfirm = true;
+    }
+
+    private async Task OnConfirmDelete(bool confirmed)
+    {
+        if (confirmed)
+        {
+            try
+            {
+                _hasError = false;
+                _error = "";
+                JournalService.DeleteJournal(_journalToDelete);
+                await LoadJournals();
+            }
+            catch (Exception ex)
+            {
+                _hasError = true;
+                _error = ex.Message;
+            }
+        }
+        _showConfirm = false;
+    }
+
+    private static string Truncate(string? text, int max)
+    {
+        if (string.IsNullOrEmpty(text)) return string.Empty;
+        return text.Length <= max ? text : text[..max] + "...";
+    }
+}

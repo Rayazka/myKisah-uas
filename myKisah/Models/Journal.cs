@@ -1,3 +1,6 @@
+// DOMAIN: Journal
+// Untuk entitas jurnal — title, content, mood, state, characterId, aiResponse
+
 namespace myKisah.Models;
 
 
@@ -25,5 +28,7 @@ public class Journal
     public string Content { get; set; } = string.Empty;
     public MoodType Mood { get; set; }
     public JournalState State { get; set; } = JournalState.Draft;
+    public string? CharacterId { get; set; }
+    public string? AiResponse { get; set; }
     public DateTime CreatedAt { get; set; }
 }

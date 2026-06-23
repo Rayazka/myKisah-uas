@@ -1,0 +1,113 @@
+@* DOMAIN: Character
+   Untuk tampilin semua karakter companion — grid card, avatar visual, link ke chat *@
+@page "/characters"
+@rendermode InteractiveServer
+
+@inject ICharacterService CharacterService
+@inject NavigationManager Navigation
+@inject UserSession Session
+@inject IJSRuntime JS
+@inject IUserService UserService
+
+<PageTitle>Character Companions — myKisah</PageTitle>
+
+<div class="container-fluid">
+    <h1 class="mb-2">Character Companions</h1>
+    <p class="text-muted mb-4">
+        Pilih karakter companion-mu. Mereka akan merespons sesuai mood yang kamu pilih.
+    </p>
+
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="NavigateToCreate">
+            + Tambah Karakter
+        </button>
+    </div>
+
+    @if (_loading)
+    {
+        <p class="text-muted">Loading characters...</p>
+    }
+    else if (!_characters.Any())
+    {
+        <p class="text-muted">Tidak ada karakter tersedia.</p>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var character in _characters)
+            {
+                var style = GetCharacterStyle(character);
+                <div class="col-md-4 col-sm-6 mb-4">
+                    <div class="card character-card">
+                        <div class="card-body text-center">
+                            <div class="character-avatar mb-3"
+                                 style="background: @style.Gradient;">
+                                <span>@style.Emoji</span>
+                            </div>
+                            <h5 class="card-title">@character.Name</h5>
+                            <p class="card-text text-muted small">
+                                @character.Description
+                            </p>
+                            <button class="btn btn-primary btn-sm"
+                                    @onclick="() => SelectCharacter(character.Id)">
+                                💬 Chat with @character.Name
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Character> _characters = new();
+    private bool _loading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        if (!Session.IsLoggedIn)
+        {
+            var userId = await JS.InvokeAsync<string>("sessionStorage.getItem", "myKisah.userId");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = UserService.GetAllUsers().FirstOrDefault(u => u.Id == userId);
+                if (user != null) Session.Login(user);
+            }
+        }
+
+        if (!Session.IsLoggedIn) { Navigation.NavigateTo("/", forceLoad: true); return; }
+
+        try
+        {
+            _characters = CharacterService.GetAllCharacters().ToList();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error loading characters: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void SelectCharacter(string id)
+    {
+        Navigation.NavigateTo($"/characters/{id}");
+    }
+
+    private void NavigateToCreate() => Navigation.NavigateTo("/characters/new");
+
+    private (string Emoji, string Gradient) GetCharacterStyle(Character c) => c.Name switch
+    {
+        "Kira" => ("💫", "linear-gradient(135deg, #7c3aed, #a78bfa)"),
+        "Luna" => ("🌙", "linear-gradient(135deg, #1e40af, #3b82f6)"),
+        "Ren" => ("🎧", "linear-gradient(135deg, #059669, #34d399)"),
+        _ => ("🌟", "linear-gradient(135deg, #6366f1, #818cf8)")
+    };
+}

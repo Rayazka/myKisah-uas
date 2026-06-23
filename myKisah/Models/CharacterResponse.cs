@@ -1,3 +1,6 @@
+// DOMAIN: Character
+// Untuk entitas table-driven — response karakter per mood dari JSON (LINQ lookup)
+
 namespace myKisah.Models;
 
 // Character Companion System
